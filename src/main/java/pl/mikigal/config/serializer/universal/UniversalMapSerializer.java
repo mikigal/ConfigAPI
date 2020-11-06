@@ -16,21 +16,18 @@ public class UniversalMapSerializer extends Serializer<Map> {
 	@Override
 	protected void saveObject(String path, Map object, BukkitConfiguration configuration) {
 		Class<?> generic = TypeUtils.getMapGeneric(object)[1];
-		if (TypeUtils.isSimpleType(generic)) {
-			for (Map.Entry<?, ?> entry : ((Map<?, ?>) object).entrySet()) {
-				configuration.set(path + "." + entry.getKey(), entry.getValue());
-			}
-
-			return;
-		}
-
 		Serializer<?> serializer = Serializers.of(generic);
-		if (serializer == null) {
+		if (serializer == null && !TypeUtils.isSimpleType(generic)) {
 			throw new MissingSerializerException(generic);
 		}
 
 		configuration.set(path + ".type", generic.getName());
 		for (Map.Entry<?, ?> entry : ((Map<?, ?>) object).entrySet()) {
+			if (serializer == null) {
+				configuration.set(path + "." + entry.getKey(), entry.getValue());
+				continue;
+			}
+
 			serializer.serialize(path + "." + entry.getKey(), entry.getValue(), configuration);
 		}
 	}
@@ -58,17 +55,22 @@ public class UniversalMapSerializer extends Serializer<Map> {
 
 		Serializer<?> serializer = Serializers.of(serializerClass);
 
-		if (serializer == null) {
-			try {
+		try {
+			if (serializer == null && !TypeUtils.isSimpleType(Class.forName(serializerClass))) {
 				throw new MissingSerializerException(Class.forName(serializerClass));
-			} catch (ClassNotFoundException e) {
-				throw new MissingSerializerException("Could not find class " + serializerClass);
 			}
+		} catch (ClassNotFoundException e) {
+			throw new MissingSerializerException("Could not find class " + serializerClass);
 		}
 
 		Map map = new HashMap<>();
 		for (String key : section.getKeys(false)) {
 			if (key.equals("type")) {
+				continue;
+			}
+
+			if (serializer == null) {
+				map.put(key, configuration.get(path + "." + key));
 				continue;
 			}
 

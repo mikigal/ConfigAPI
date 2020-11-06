@@ -17,12 +17,17 @@ public class UniversalListSerializer extends Serializer<List> {
 	protected void saveObject(String path, List object, BukkitConfiguration configuration) {
 		Class<?> generic = TypeUtils.getListGeneric(object);
 		Serializer<?> serializer = Serializers.of(generic);
-		if (serializer == null) {
+		if (serializer == null && !TypeUtils.isSimpleType(generic)) {
 			throw new MissingSerializerException(generic);
 		}
 
 		configuration.set(path + ".type", generic.getName());
 		for (int i = 0; i < object.size(); i++) {
+			if (serializer == null) {
+				configuration.set(path + "." + i, object.get(i));
+				continue;
+			}
+
 			serializer.serialize(path + "." + i, object.get(i), configuration);
 		}
 	}
@@ -41,17 +46,22 @@ public class UniversalListSerializer extends Serializer<List> {
 
 		Serializer<?> serializer = Serializers.of(serializerClass);
 
-		if (serializer == null) {
-			try {
+		try {
+			if (serializer == null && !TypeUtils.isSimpleType(Class.forName(serializerClass))) {
 				throw new MissingSerializerException(Class.forName(serializerClass));
-			} catch (ClassNotFoundException e) {
-				throw new MissingSerializerException("Could not find class " + serializerClass);
 			}
+		} catch (ClassNotFoundException e) {
+			throw new MissingSerializerException("Could not find class " + serializerClass);
 		}
 
 		List list = new ArrayList<>();
 		for (String index : section.getKeys(false)) {
 			if (index.equals("type")) {
+				continue;
+			}
+
+			if (serializer == null) {
+				list.add(configuration.get(path + "." + index));
 				continue;
 			}
 
