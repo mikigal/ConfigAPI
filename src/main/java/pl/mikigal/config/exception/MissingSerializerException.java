@@ -1,5 +1,10 @@
 package pl.mikigal.config.exception;
 
+/**
+ * Should be thrown when trying to access serializer which does not exists
+ * @since 1.0
+ * @author Mikołaj Gałązka
+ */
 public class MissingSerializerException extends InvalidConfigException {
 
 	public MissingSerializerException(Class<?> clazz) {

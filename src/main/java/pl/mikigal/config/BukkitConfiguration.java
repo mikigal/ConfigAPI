@@ -19,6 +19,12 @@ import java.io.*;
 import java.lang.reflect.Field;
 import java.util.*;
 
+/**
+ * Utilities for management of config files
+ * @since 1.0
+ * @author Mikołaj Gałązka
+ * @see YamlConfiguration
+ */
 public class BukkitConfiguration extends YamlConfiguration {
 
 	private static final Field yamlOptionsField;
@@ -40,13 +46,24 @@ public class BukkitConfiguration extends YamlConfiguration {
 		}
 	}
 
+	/**
+	 * Properties of config
+	 */
 	private final File file;
 	private final NameStyle nameStyle;
 	private final CommentStyle commentStyle;
 	private final boolean automaticColorStrings;
+
+	/**
+	 * Caches
+	 */
 	private final Map<String, Object> cache;
 	private final Map<String, String> comments;
 
+	/**
+	 * Internal objects from YamlConfiguration, needed for handling comments
+	 * @see YamlConfiguration
+	 */
 	private final DumperOptions yamlOptions;
 	private final YamlRepresenter yamlRepresenter;
 	private final Yaml yaml;
@@ -71,6 +88,12 @@ public class BukkitConfiguration extends YamlConfiguration {
 		this.load();
 	}
 
+	/**
+	 * Set value of field
+	 * @param path path in config
+	 * @param value value which you want to set
+	 * @param comment field's comment, can be null
+	 */
 	public void set(String path, Object value, Comment comment) {
 		if (comment != null) {
 			this.comments.put(path, comment.value());
@@ -123,6 +146,10 @@ public class BukkitConfiguration extends YamlConfiguration {
 		return this.cache.containsKey(path) ? this.cache.get(path) : super.get(path);
 	}
 
+	/**
+	 * Workaround for writing comments to .yml file, Bukkit does to allow to do it
+	 * @return yml content as String
+	 */
 	@Override
 	public String saveToString() {
 		this.yamlOptions.setIndent(this.options().indent());
@@ -161,6 +188,9 @@ public class BukkitConfiguration extends YamlConfiguration {
 		return String.join("\n", lines);
 	}
 
+	/**
+	 * Loads data from config file
+	 */
 	public void load() {
 		try {
 			this.cache.clear();
@@ -170,6 +200,9 @@ public class BukkitConfiguration extends YamlConfiguration {
 		}
 	}
 
+	/**
+	 * Saves data to config file
+	 */
 	public void save() {
 		try {
 			this.save(this.file);
@@ -178,6 +211,9 @@ public class BukkitConfiguration extends YamlConfiguration {
 		}
 	}
 
+	/**
+	 * Copy default .yml file of config, if exists
+	 */
 	private void copyDefaultConfig() {
 		try {
 			if (!ConfigAPI.getPlugin().getDataFolder().exists()) {
@@ -209,6 +245,11 @@ public class BukkitConfiguration extends YamlConfiguration {
 		}
 	}
 
+	/**
+	 * Add value to cache for optimization, to do not parse it every time user want to access it
+	 * @param path path in config
+	 * @param value value of field
+	 */
 	public void addToCache(String path, Object value) {
 		this.cache.put(path, value);
 	}

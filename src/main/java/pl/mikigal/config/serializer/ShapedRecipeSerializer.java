@@ -14,6 +14,13 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 
+/**
+ * Built-in serializer for ShapedRecipe
+ * @see ShapedRecipe
+ * @see Serializer
+ * @since 1.0
+ * @author Mikołaj Gałązka
+ */
 public class ShapedRecipeSerializer extends Serializer<ShapedRecipe> {
 
 	// Workaround to don't require both version to build

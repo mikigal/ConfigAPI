@@ -11,6 +11,13 @@ import pl.mikigal.config.util.TypeUtils;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Helper built-in serializer for processing List
+ * @see List
+ * @see Serializer
+ * @since 1.0
+ * @author Mikołaj Gałązka
+ */
 public class UniversalListSerializer extends Serializer<List> {
 
 	@Override

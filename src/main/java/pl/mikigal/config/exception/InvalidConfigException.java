@@ -1,5 +1,10 @@
 package pl.mikigal.config.exception;
 
+/**
+ * Should be thrown when internal exception exists
+ * @since 1.0
+ * @author Mikołaj Gałązka
+ */
 public class InvalidConfigException extends RuntimeException {
 
 	public InvalidConfigException(String message) {

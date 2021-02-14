@@ -18,6 +18,11 @@ import java.lang.reflect.ParameterizedType;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Proxy invocation handler for configs
+ * @since 1.0
+ * @author Mikołaj Gałązka
+ */
 public class ConfigInvocationHandler implements InvocationHandler {
 
 	private final Class<? extends Config> clazz;

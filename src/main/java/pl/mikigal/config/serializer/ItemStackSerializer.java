@@ -13,6 +13,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Built-in serializer for ItemStack
+ * @see ItemStack
+ * @see Serializer
+ * @since 1.0
+ * @author Mikołaj Gałązka
+ */
 public class ItemStackSerializer extends Serializer<ItemStack> {
 
 	@Override

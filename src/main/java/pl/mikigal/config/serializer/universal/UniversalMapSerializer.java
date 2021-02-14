@@ -9,8 +9,16 @@ import pl.mikigal.config.serializer.Serializers;
 import pl.mikigal.config.util.TypeUtils;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
+/**
+ * Helper built-in serializer for processing Map
+ * @see Map
+ * @see Serializer
+ * @since 1.0
+ * @author Mikołaj Gałązka
+ */
 public class UniversalMapSerializer extends Serializer<Map> {
 
 	@Override

@@ -8,6 +8,13 @@ import pl.mikigal.config.BukkitConfiguration;
 import pl.mikigal.config.exception.InvalidConfigFileException;
 import pl.mikigal.config.util.ConversionUtils;
 
+/**
+ * Built-in serializer for Location
+ * @see Location
+ * @see Serializer
+ * @since 1.0
+ * @author Mikołaj Gałązka
+ */
 public class LocationSerializer extends Serializer<Location> {
 
 	@Override

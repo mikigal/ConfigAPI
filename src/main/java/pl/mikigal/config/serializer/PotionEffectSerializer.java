@@ -5,6 +5,13 @@ import org.bukkit.potion.PotionEffectType;
 import pl.mikigal.config.BukkitConfiguration;
 import pl.mikigal.config.exception.InvalidConfigFileException;
 
+/**
+ * Built-in serializer for PotionEffect
+ * @see PotionEffect
+ * @see Serializer
+ * @since 1.0
+ * @author Mikołaj Gałązka
+ */
 public class PotionEffectSerializer extends Serializer<PotionEffect> {
 
 	@Override

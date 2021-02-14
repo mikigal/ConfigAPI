@@ -4,6 +4,13 @@ import pl.mikigal.config.BukkitConfiguration;
 
 import java.util.UUID;
 
+/**
+ * Built-in serializer for UUID
+ * @see UUID
+ * @see Serializer
+ * @since 1.0
+ * @author Mikołaj Gałązka
+ */
 public class UUIDSerializer extends Serializer<UUID> {
 
 	@Override
