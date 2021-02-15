@@ -15,6 +15,7 @@ import pl.mikigal.config.util.TypeUtils;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -50,23 +51,32 @@ public class ConfigInvocationHandler implements InvocationHandler {
 		String name = method.getName();
 		if (name.equals("getBukkitConfiguration")) {
 			return this.configuration;
-		} else if (name.equals("toString")) {
+		}
+		else if (name.equals("toString")) {
 			return this.clazz.toString();
-		} else if (name.equals("hashCode")) {
+		}
+		else if (name.equals("hashCode")) {
 			return this.hashCode();
-		} else if (name.equals("equals")) {
+		}
+		else if (name.equals("equals")) {
 			return proxy == args[0];
-		} else if (name.startsWith("get")) {
-			return this.processGetter(method);
-		} else if (name.startsWith("set")) {
-			this.processSetter(method, args);
+		}
+		else if (name.startsWith("get")) {
+			return this.executeGetter(method);
+		}
+		else if (name.startsWith("set")) {
+			this.executeSetter(method, args);
 			return null;
 		}
 
 		return null;
 	}
 
-	private Object processGetter(Method method) {
+	/**
+	 * Execute getter method
+	 * @param method instance of called method
+	 */
+	private Object executeGetter(Method method) {
 		if (!method.getName().startsWith("get")) {
 			return null;
 		}
@@ -122,7 +132,12 @@ public class ConfigInvocationHandler implements InvocationHandler {
 		return cache;
 	}
 
-	private void processSetter(Method method, Object[] args) {
+	/**
+	 * Execute setter method
+	 * @param method instance of called method
+	 * @param args arguments of called method
+	 */
+	private void executeSetter(Method method, Object[] args) {
 		if (!method.getName().startsWith("set")) {
 			return;
 		}
@@ -136,6 +151,9 @@ public class ConfigInvocationHandler implements InvocationHandler {
 		this.configuration.save();
 	}
 
+	/**
+	 * Validate methods, prepare paths of fields
+	 */
 	private void prepareMethods() {
 		// Process getters
 		for (Method method : this.clazz.getDeclaredMethods()) {
@@ -200,6 +218,10 @@ public class ConfigInvocationHandler implements InvocationHandler {
 		}
 	}
 
+	/**
+	 * Check for new methods in config's class, update config's file if new methods exist
+	 * @return true if config was update, else false
+	 */
 	private boolean updateConfigFile() {
 		boolean modified = false;
 		Object proxy = ReflectionUtils.createHelperProxy(this.clazz);
@@ -223,6 +245,18 @@ public class ConfigInvocationHandler implements InvocationHandler {
 			}
 
 			modified = true;
+			if (defaultValue instanceof Collection) {
+				if (((Collection<?>) defaultValue).size() == 0) {
+					throw new InvalidConfigException("Could not use empty Collection as default value, method: " + name);
+				}
+			}
+
+			if (defaultValue instanceof Map) {
+				if (((Map<?, ?>) defaultValue).size() == 0) {
+					throw new InvalidConfigException("Could not use empty Map as default value, method: " + name);
+				}
+			}
+
 			this.configuration.set(this.getConfigPath(method), defaultValue, method.getAnnotation(Comment.class));
 		}
 
@@ -233,12 +267,20 @@ public class ConfigInvocationHandler implements InvocationHandler {
 		return modified;
 	}
 
+	/**
+	 * Get value from config for every method for the first time, for validation and prepare cache
+	 */
 	private void validateConfig() {
 		for (Method method : this.clazz.getDeclaredMethods()) {
-			this.processGetter(method);
+			this.executeGetter(method);
 		}
 	}
 
+	/**
+	 * Get path of method from cache
+	 * @param method instance of method
+	 * @return field's path from cache
+	 */
 	private String getConfigPath(Method method) {
 		return this.configPaths.get(method.getName());
 	}

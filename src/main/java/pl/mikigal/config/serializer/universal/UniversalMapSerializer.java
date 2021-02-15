@@ -23,6 +23,11 @@ public class UniversalMapSerializer extends Serializer<Map> {
 
 	@Override
 	protected void saveObject(String path, Map object, BukkitConfiguration configuration) {
+		if (object.size() == 0) {
+			// Java's generics suck so I can't check generic type of empty Map
+			throw new IllegalStateException("Can't set empty Map to config");
+		}
+
 		Class<?> generic = TypeUtils.getMapGeneric(object)[1];
 		Serializer<?> serializer = Serializers.of(generic);
 		if (serializer == null && !TypeUtils.isSimpleType(generic)) {

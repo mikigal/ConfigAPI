@@ -30,9 +30,7 @@ public class ItemStackSerializer extends Serializer<ItemStack> {
 			configuration.set(path + ".durability", object.getDurability());
 		}
 
-		System.out.println(object.getEnchantments());
 		for (Map.Entry<Enchantment, Integer> entry : object.getEnchantments().entrySet()) {
-			System.out.println(entry);
 			configuration.set(path + ".enchantments." + entry.getKey().getName(), entry.getValue());
 		}
 

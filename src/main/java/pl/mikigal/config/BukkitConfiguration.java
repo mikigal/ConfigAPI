@@ -108,13 +108,7 @@ public class BukkitConfiguration extends YamlConfiguration {
 			value = Arrays.asList(((Object[]) value));
 		}
 
-		// Workaround for setting and loading empty List and Map.
-		if ((value instanceof List && ((List<?>) value).size() == 0) || (value instanceof Map && ((Map<?, ?>) value).size() == 0)) {
-			super.set(path, new ArrayList<>());
-			return;
-		}
-
-		if (value == null || TypeUtils.isSimpleType(value)) {
+		if (!(value instanceof Collection) && (value == null || TypeUtils.isSimpleType(value))) {
 			super.set(path, value);
 
 			if (value == null) {

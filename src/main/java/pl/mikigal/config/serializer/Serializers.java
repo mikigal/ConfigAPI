@@ -6,13 +6,10 @@ import org.bukkit.inventory.ShapedRecipe;
 import org.bukkit.potion.PotionEffect;
 import pl.mikigal.config.exception.InvalidConfigException;
 import pl.mikigal.config.exception.MissingSerializerException;
-import pl.mikigal.config.serializer.universal.UniversalListSerializer;
+import pl.mikigal.config.serializer.universal.UniversalCollectionSerializer;
 import pl.mikigal.config.serializer.universal.UniversalMapSerializer;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 /**
  * Utilities for serializers management
@@ -33,7 +30,7 @@ public class Serializers {
 		register(PotionEffect.class, new PotionEffectSerializer());
 		register(UUID.class, new UUIDSerializer());
 
-		register(List.class, new UniversalListSerializer());
+		register(Collection.class, new UniversalCollectionSerializer());
 		register(Map.class, new UniversalMapSerializer());
 	}
 
@@ -95,9 +92,17 @@ public class Serializers {
 	 */
 	public static void register(Class<?> clazz, Serializer<?> serializer) {
 		if (!clazz.equals(serializer.getSerializerType())) {
-			throw new InvalidConfigException("Can't register serializer " + serializer.getClass().getName() + "! You tried to register it for another Class than it's generic type");
+			throw new InvalidConfigException("Can't register serializer " + serializer.getClass().getName());
 		}
 
 		SERIALIZERS.put(clazz, serializer);
+	}
+
+	/**
+	 * Unregisters serializer
+	 * @param clazz type which you want to unregister
+	 */
+	public static void unregister(Class<?> clazz) {
+		SERIALIZERS.remove(clazz);
 	}
 }

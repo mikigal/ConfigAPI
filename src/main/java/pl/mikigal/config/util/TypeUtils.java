@@ -5,9 +5,7 @@ import pl.mikigal.config.exception.InvalidConfigException;
 import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Utilities for Java types
@@ -34,17 +32,17 @@ public class TypeUtils {
 
 	/**
 	 * Allow to check is type simple to handle for API
-	 * It can't handle generic types except List
+	 * It can't handle generic types except Collection
 	 * @param method method which return type you want to check
-	 * @return true if type is primitive, primitive's wrapper, String or List's generic is one of its, else false
+	 * @return true if type is primitive, primitive's wrapper, String or Collection's generic is one of its, else false
 	 */
 	public static boolean isSimpleType(Method method) {
 		Class<?> type = method.getReturnType();
-		if (isPrimitiveOrWrapper(type) || type.equals(String.class)) {
+		if (isSimpleType(type)) {
 			return true;
 		}
 
-		if (!type.equals(List.class)) { // Map is manually implemented in Proxy and UniversalMapSerializer
+ 		if (!type.isAssignableFrom(Collection.class)) {
 			return false;
 		}
 
@@ -63,26 +61,13 @@ public class TypeUtils {
 
 	/**
 	 * Allow to check is type simple to handle for API
-	 * It can't handle generic types except List
+	 * It can't handle generic types except Collection
 	 * @param object instance of object which you want to check
-	 * @return true if type is primitive, primitive's wrapper, String or List's generic is one of its, else false
+	 * @return true if type is primitive, primitive's wrapper, String or Collection's generic is one of its, else false
 	 */
 	public static boolean isSimpleType(Object object) {
-		if (isPrimitiveOrWrapper(object.getClass()) || object.getClass().equals(String.class)) {
-			return true;
-		}
-
-		if (!(object instanceof List)) {
-			return false;
-		}
-
-		List<?> list = (List<?>) object;
-		if (list.size() == 0) {
-			throw new InvalidConfigException("Can't get generic type of empty List");
-		}
-
-		Class<?> generic = list.get(0).getClass();
-		return isPrimitiveOrWrapper(generic) || generic.equals(String.class);
+		return isSimpleType(object.getClass()) ||
+				(object instanceof Collection && isSimpleType(getCollectionGeneric((Collection<?>) object)));
 	}
 
 	/**
@@ -91,27 +76,27 @@ public class TypeUtils {
 	 * @param type type which you want to check
 	 * @return true if type is primitive, primitive's wrapper or String, else false
 	 */
-	public static boolean isSimpleType(Class<?> type) { // It does not handle List
+	public static boolean isSimpleType(Class<?> type) {
 		return isPrimitiveOrWrapper(type) || type.equals(String.class);
 	}
 
 	/**
-	 * Return generic types of given non-empty List instance
-	 * @param list instance of List
+	 * Return generic types of given non-empty Collection instance
+	 * @param collection instance of Collection
 	 * @return generic type of given class
-	 * @throws InvalidConfigException if list is empty
+	 * @throws InvalidConfigException if Collection is empty
 	 */
-	public static Class<?> getListGeneric(List<?> list) {
-		if (list.size() == 0) {
-			throw new InvalidConfigException("Can't get generic type of empty List");
+	public static Class<?> getCollectionGeneric(Collection<?> collection) {
+		for (Object element : collection) {
+			return element.getClass();
 		}
 
-		return list.get(0).getClass();
+		throw new InvalidConfigException("Can't get generic type of empty Collection");
 	}
 
 	/**
 	 * Return generic types of given non-empty Map instance
-	 * @param map instance of List
+	 * @param map instance of Map
 	 * @return array with generic types of given class
 	 * @throws InvalidConfigException if map is empty
 	 */

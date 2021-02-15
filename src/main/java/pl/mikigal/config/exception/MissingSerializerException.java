@@ -7,6 +7,10 @@ package pl.mikigal.config.exception;
  */
 public class MissingSerializerException extends InvalidConfigException {
 
+	public MissingSerializerException(String message, Throwable throwable) {
+		super(message, throwable);
+	}
+
 	public MissingSerializerException(Class<?> clazz) {
 		super("Serializer for " + clazz + " does not exists. Did you forget to register it?");
 	}

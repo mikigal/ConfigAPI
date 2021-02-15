@@ -3,6 +3,7 @@ package pl.mikigal.config.serializer;
 import pl.mikigal.config.BukkitConfiguration;
 import pl.mikigal.config.exception.InvalidConfigException;
 
+import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 
 /**
@@ -65,6 +66,10 @@ public abstract class Serializer<T> {
 	 */
 	public abstract T deserialize(String path, BukkitConfiguration configuration);
 
+	/**
+	 * Returns type which serializer can process
+	 * @return type which serializer can process
+	 */
 	public Class<T> getSerializerType() {
 		return serializerType;
 	}
