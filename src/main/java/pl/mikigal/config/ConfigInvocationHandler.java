@@ -114,6 +114,10 @@ public class ConfigInvocationHandler implements InvocationHandler {
 			return value;
 		}
 
+		if (method.getReturnType().isArray()) {
+			throw new InvalidConfigException("Arrays are not supported, use Collection instead");
+		}
+
 		Serializer<?> serializer = Serializers.of(method.getReturnType());
 		if (serializer == null) {
 			throw new MissingSerializerException(method.getReturnType());
@@ -147,12 +151,16 @@ public class ConfigInvocationHandler implements InvocationHandler {
 			throw new InvalidConfigException("You can't set value to config setter that isn't @ConfigOptional (method: " + method + ")");
 		}
 
+		if (value != null && value.getClass().isArray()) {
+			throw new InvalidConfigException("Arrays are not supported, use Collection instead");
+		}
+
 		configuration.set(this.getConfigPath(method), value, method.getAnnotation(Comment.class));
 		this.configuration.save();
 	}
 
 	/**
-	 * Validate methods, prepare paths of fields
+	 * Prepare paths of fields
 	 */
 	private void prepareMethods() {
 		// Process getters
@@ -233,6 +241,10 @@ public class ConfigInvocationHandler implements InvocationHandler {
 
 			if (!method.isDefault() || this.configuration.contains(this.getConfigPath(method))) {
 				continue;
+			}
+
+			if (method.getReturnType().isArray()) {
+				throw new InvalidConfigException("Arrays are not supported, use Collection instead");
 			}
 
 			Object defaultValue = ReflectionUtils.getDefaultValue(proxy, method);
