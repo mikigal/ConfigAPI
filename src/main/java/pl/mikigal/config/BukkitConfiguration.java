@@ -104,11 +104,7 @@ public class BukkitConfiguration extends YamlConfiguration {
 
 	@Override
 	public void set(String path, Object value) {
-		if (value != null && value.getClass().isArray()) {
-			value = Arrays.asList(((Object[]) value));
-		}
-
-		if (!(value instanceof Collection) && (value == null || TypeUtils.isSimpleType(value))) {
+		if (!(value instanceof Collection) && !(value instanceof Map) && (value == null || TypeUtils.isSimpleType(value))) {
 			super.set(path, value);
 
 			if (value == null) {

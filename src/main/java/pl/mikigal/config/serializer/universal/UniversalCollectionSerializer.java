@@ -7,7 +7,6 @@ import pl.mikigal.config.exception.MissingSerializerException;
 import pl.mikigal.config.serializer.Serializer;
 import pl.mikigal.config.serializer.Serializers;
 import pl.mikigal.config.util.TypeUtils;
-import test.TestConfig;
 
 import java.lang.reflect.Method;
 import java.util.*;
@@ -34,7 +33,7 @@ public class UniversalCollectionSerializer extends Serializer<Collection> {
 			throw new MissingSerializerException(generic);
 		}
 
-		configuration.set(path + ".collection", object.getClass().getName());
+		configuration.set(path + ".structure", object.getClass().getName());
 		configuration.set(path + ".type", generic.getName());
 
 		int index = 0;
@@ -54,7 +53,7 @@ public class UniversalCollectionSerializer extends Serializer<Collection> {
 	public Collection<?> deserialize(String path, BukkitConfiguration configuration) {
 		ConfigurationSection section = configuration.getConfigurationSection(path);
 
-		String collectionRaw = section.getString("collection");
+		String collectionRaw = section.getString("structure");
 		String serializerRaw = section.getString("type");
 
 		Objects.requireNonNull(collectionRaw, "Collection type is not defined for " + path);
@@ -71,7 +70,7 @@ public class UniversalCollectionSerializer extends Serializer<Collection> {
 
 			Collection collection = (Collection) collectionClass.newInstance();
 			for (String index : section.getKeys(false)) {
-				if (index.equals("type") || index.equals("collection")) {
+				if (index.equals("type") || index.equals("structure")) {
 					continue;
 				}
 
@@ -85,7 +84,7 @@ public class UniversalCollectionSerializer extends Serializer<Collection> {
 
 			return collection;
 		} catch (ClassNotFoundException | InstantiationException | IllegalAccessException e) {
-			throw new MissingSerializerException("Could not find class", e);
+			throw new RuntimeException(e);
 		}
 	}
 }
