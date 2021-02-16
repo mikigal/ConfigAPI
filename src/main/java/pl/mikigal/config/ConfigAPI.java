@@ -1,6 +1,7 @@
 package pl.mikigal.config;
 
 import org.bukkit.plugin.java.JavaPlugin;
+import pl.mikigal.config.annotation.Comment;
 import pl.mikigal.config.annotation.ConfigName;
 import pl.mikigal.config.exception.InvalidConfigException;
 import pl.mikigal.config.serializer.Serializer;
@@ -47,20 +48,25 @@ public class ConfigAPI {
 	 * @see CommentStyle
 	 * @return Instance of {@param clazz} ready to use methods
 	 */
-	public static <T extends Config> T init(Class<T> clazz, NameStyle nameStyle, CommentStyle commentStyle, boolean automaticColorStrings, JavaPlugin plugin) {
+	public static <T extends Config> T init(Class<T> clazz, NameStyle nameStyle, CommentStyle commentStyle,
+											boolean automaticColorStrings, JavaPlugin plugin) {
 		ConfigAPI.plugin = plugin;
 		ConfigName configName = clazz.getAnnotation(ConfigName.class);
 		if (configName == null) {
 			throw new InvalidConfigException("Config must have annotation ConfigName with file's name");
 		}
 
+		Comment configCommentAnnotation = clazz.getAnnotation(Comment.class);
+		String configComment = configCommentAnnotation == null ? null : configCommentAnnotation.value();
+
 		String name = configName.value() + (configName.value().endsWith(".yml") ? "" : ".yml");
 		File file = new File(plugin.getDataFolder(), name);
 
-		BukkitConfiguration rawConfiguration = new BukkitConfiguration(file, nameStyle, commentStyle, automaticColorStrings);
+		BukkitConfiguration rawConfiguration = new BukkitConfiguration(file, nameStyle, commentStyle, automaticColorStrings, configComment);
 		rawConfigurations.put(name, rawConfiguration);
 
-		T configuration = (T) Proxy.newProxyInstance(clazz.getClassLoader(), new Class[]{clazz}, new ConfigInvocationHandler(clazz, rawConfiguration, automaticColorStrings));
+		T configuration = (T) Proxy.newProxyInstance(clazz.getClassLoader(), new Class[]{clazz},
+				new ConfigInvocationHandler(clazz, rawConfiguration, automaticColorStrings));
 		configurations.put(name, configuration);
 
 		return configuration;

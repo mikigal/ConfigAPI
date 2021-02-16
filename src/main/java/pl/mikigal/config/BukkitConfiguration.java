@@ -27,25 +27,6 @@ import java.util.*;
  */
 public class BukkitConfiguration extends YamlConfiguration {
 
-	private static final Field yamlOptionsField;
-	private static final Field yamlRepresenterField;
-	private static final Field yamlField;
-
-	static {
-		try {
-			yamlOptionsField = YamlConfiguration.class.getDeclaredField("yamlOptions");
-			yamlOptionsField.setAccessible(true);
-
-			yamlRepresenterField = YamlConfiguration.class.getDeclaredField("yamlRepresenter");
-			yamlRepresenterField.setAccessible(true);
-
-			yamlField = YamlConfiguration.class.getDeclaredField("yaml");
-			yamlField.setAccessible(true);
-		} catch (NoSuchFieldException e) {
-			throw new InvalidConfigException("Could not find Fields of YamlConfiguration", e);
-		}
-	}
-
 	/**
 	 * Properties of config
 	 */
@@ -53,6 +34,7 @@ public class BukkitConfiguration extends YamlConfiguration {
 	private final NameStyle nameStyle;
 	private final CommentStyle commentStyle;
 	private final boolean automaticColorStrings;
+	private final String configComment;
 
 	/**
 	 * Caches
@@ -60,29 +42,14 @@ public class BukkitConfiguration extends YamlConfiguration {
 	private final Map<String, Object> cache;
 	private final Map<String, String> comments;
 
-	/**
-	 * Internal objects from YamlConfiguration, needed for handling comments
-	 * @see YamlConfiguration
-	 */
-	private final DumperOptions yamlOptions;
-	private final YamlRepresenter yamlRepresenter;
-	private final Yaml yaml;
-
-	public BukkitConfiguration(File file, NameStyle nameStyle, CommentStyle commentStyle, boolean automaticColorStrings) {
+	public BukkitConfiguration(File file, NameStyle nameStyle, CommentStyle commentStyle, boolean automaticColorStrings, String configComment) {
 		this.file = file;
 		this.nameStyle = nameStyle;
 		this.commentStyle = commentStyle;
 		this.automaticColorStrings = automaticColorStrings;
 		this.cache = new HashMap<>();
 		this.comments = new HashMap<>();
-
-		try {
-			this.yamlOptions = (DumperOptions) yamlOptionsField.get(this);
-			this.yamlRepresenter = (YamlRepresenter) yamlRepresenterField.get(this);
-			this.yaml = (Yaml) yamlField.get(this);
-		} catch (IllegalAccessException e) {
-			throw new InvalidConfigException("Could not get values of Fields in YamlConfiguration", e);
-		}
+		this.configComment = configComment;
 
 		this.copyDefaultConfig();
 		this.load();
@@ -138,40 +105,38 @@ public class BukkitConfiguration extends YamlConfiguration {
 
 	/**
 	 * Workaround for writing comments to .yml file, Bukkit does to allow to do it
-	 * @return yml content as String
+	 * @return Content of config parsed to YAML
 	 */
 	@Override
 	public String saveToString() {
-		this.yamlOptions.setIndent(this.options().indent());
-		this.yamlOptions.setDefaultFlowStyle(DumperOptions.FlowStyle.BLOCK);
-		this.yamlOptions.setAllowUnicode(true);
-		this.yamlRepresenter.setDefaultFlowStyle(DumperOptions.FlowStyle.BLOCK);
-
-		String header = this.buildHeader();
-		String dump = yaml.dump(this.getValues(false));
-		if (dump.equals("{}\n")) {
-			dump = "";
-		}
+		String yaml = super.saveToString();
 
 		List<String> lines = new ArrayList<>();
-		for (String line : (header + dump).split("\n")) {
-			if (!line.contains(":") || line.startsWith(" ")) {
+		if (this.configComment != null) {
+			lines.add(this.configComment);
+		}
+
+		for (String line : yaml.split("\n")) {
+			// It's not line with new field
+			if (!line.contains(":") || line.startsWith(" ") || line.startsWith("\t")) {
 				lines.add(line);
 				continue;
 			}
 
-			String key = line.split(":")[0];
-			String comment = this.comments.get(key);
-			if (comment != null) {
-				if (this.commentStyle == CommentStyle.ABOVE_CONTENT) {
-					lines.add("# " + comment);
-				} else {
-					lines.add(line + " # " + comment);
-				}
-
+			String configFieldName = line.split(":")[0];
+			String comment = this.comments.get(configFieldName);
+			if (comment == null) {
+				lines.add(line);
 				continue;
 			}
 
+			if (this.commentStyle == CommentStyle.INLINE) {
+				lines.add(line + " # " + comment);
+				continue;
+			}
+
+			// ABOVE_CONTENT
+			lines.add("# " + comment);
 			lines.add(line);
 		}
 
