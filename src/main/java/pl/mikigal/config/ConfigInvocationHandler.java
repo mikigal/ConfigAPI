@@ -43,7 +43,10 @@ public class ConfigInvocationHandler implements InvocationHandler {
 			this.prepareMethods();
 		}
 
-		this.validateConfig();
+		// Execute all getter for test and fill cache
+		for (Method method : this.clazz.getDeclaredMethods()) {
+			this.executeGetter(method);
+		}
 	}
 
 	@Override
@@ -81,41 +84,33 @@ public class ConfigInvocationHandler implements InvocationHandler {
 			return null;
 		}
 
+		if (method.getReturnType().isArray()) {
+			throw new InvalidConfigException("Arrays are not supported, use Collection instead");
+		}
+
 		String path = this.getConfigPath(method);
-		if (method.getReturnType().equals(String.class) && this.automaticColorStrings) {
-			String cache = (String) this.configuration.get(path);
-			if (cache == null) {
+		Object value = this.configuration.get(path);
+
+		if (value == null) {
+			if (!method.isAnnotationPresent(ConfigOptional.class)) {
 				throw new InvalidConfigFileException("Variable in config (path: " + path + ") is required, but is not set");
 			}
 
+			return null;
+		}
+
+		if (method.getReturnType().equals(String.class) && this.automaticColorStrings) {
+			String asString = (String) value;
 			if (!this.configuration.getCache().containsKey(path)) {
-				cache = ConversionUtils.fixColors(cache);
-				this.configuration.addToCache(path, cache);
+				asString = ConversionUtils.fixColors(asString);
+				this.configuration.addToCache(path, asString);
 			}
 
-			return cache;
+			return asString;
 		}
 
 		if (TypeUtils.isSimpleType(method)) {
-			Object value = this.configuration.get(path);
-			if (value == null) {
-				if (!method.isAnnotationPresent(ConfigOptional.class)) {
-					throw new InvalidConfigFileException("Variable in config (path: " + path + ") is required, but is not set");
-				}
-
-				return null;
-			}
-
-
-			if (!method.getReturnType().isInstance(value) && !value.getClass().equals(TypeUtils.getWrapper(method.getReturnType()))) {
-				throw new InvalidConfigException("Method " + method.getName() + " does not return type same as variable in config (path: " + path + "; " + value.getClass() + ")");
-			}
-
 			return value;
-		}
-
-		if (method.getReturnType().isArray()) {
-			throw new InvalidConfigException("Arrays are not supported, use Collection instead");
 		}
 
 		Serializer<?> serializer = Serializers.of(method.getReturnType());
@@ -123,17 +118,12 @@ public class ConfigInvocationHandler implements InvocationHandler {
 			throw new MissingSerializerException(method.getReturnType());
 		}
 
-		Object cache = this.configuration.get(path);
-		if (cache == null) {
-			throw new InvalidConfigFileException("Variable in config (path: " + path + ") is required, but is not set");
+		if (!serializer.getSerializerType().equals(value.getClass())) {
+			value = serializer.deserialize(path, this.configuration);
+			this.configuration.addToCache(path, value);
 		}
 
-		if (!serializer.getSerializerType().equals(cache.getClass())) {
-			cache = serializer.deserialize(path, this.configuration);
-			this.configuration.addToCache(path, cache);
-		}
-
-		return cache;
+		return value;
 	}
 
 	/**
@@ -160,7 +150,7 @@ public class ConfigInvocationHandler implements InvocationHandler {
 	}
 
 	/**
-	 * Prepare paths of fields
+	 * Validate methods, prepare paths of fields
 	 */
 	private void prepareMethods() {
 		// Process getters
@@ -208,10 +198,7 @@ public class ConfigInvocationHandler implements InvocationHandler {
 				throw new InvalidConfigException("Setter method " + name + " has ConfigOptional annotation");
 			}
 
-			String getter = name.replace("set", "get");
-			if (!this.configPaths.containsKey(getter)) {
-				throw new InvalidConfigException("Setter method " + name + " has not getter");
-			}
+			String getter = name.replaceFirst("set", "get");
 
 			try {
 				if (!this.clazz.getDeclaredMethod(getter).getReturnType().equals(method.getParameters()[0].getType())) {
@@ -243,32 +230,20 @@ public class ConfigInvocationHandler implements InvocationHandler {
 				continue;
 			}
 
-			if (method.getReturnType().isArray()) {
-				throw new InvalidConfigException("Arrays are not supported, use Collection instead");
+			Object defaultValue = ReflectionUtils.getDefaultValue(proxy, method);
+			if (defaultValue == null && !method.isAnnotationPresent(ConfigOptional.class)) {
+				throw new InvalidConfigException("Method " + method.getName() + " is not optional, but it's default value is null");
 			}
 
-			Object defaultValue = ReflectionUtils.getDefaultValue(proxy, method);
-			if (defaultValue == null) {
-				if (!method.isAnnotationPresent(ConfigOptional.class)) {
-					throw new InvalidConfigException("Method " + method.getName() + " is not optional, but it's default value is null");
-				}
+			if (defaultValue instanceof Collection && ((Collection<?>) defaultValue).size() == 0) {
+				throw new InvalidConfigException("Could not use empty Collection as default value, method: " + name);
+			}
 
-				continue;
+			if (defaultValue instanceof Map && ((Map<?, ?>) defaultValue).size() == 0) {
+				throw new InvalidConfigException("Could not use empty Map as default value, method: " + name);
 			}
 
 			modified = true;
-			if (defaultValue instanceof Collection) {
-				if (((Collection<?>) defaultValue).size() == 0) {
-					throw new InvalidConfigException("Could not use empty Collection as default value, method: " + name);
-				}
-			}
-
-			if (defaultValue instanceof Map) {
-				if (((Map<?, ?>) defaultValue).size() == 0) {
-					throw new InvalidConfigException("Could not use empty Map as default value, method: " + name);
-				}
-			}
-
 			this.configuration.set(this.getConfigPath(method), defaultValue, method.getAnnotation(Comment.class));
 		}
 
@@ -277,15 +252,6 @@ public class ConfigInvocationHandler implements InvocationHandler {
 		}
 
 		return modified;
-	}
-
-	/**
-	 * Get value from config for every method for the first time, for validation and prepare cache
-	 */
-	private void validateConfig() {
-		for (Method method : this.clazz.getDeclaredMethods()) {
-			this.executeGetter(method);
-		}
 	}
 
 	/**

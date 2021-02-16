@@ -113,7 +113,7 @@ public class BukkitConfiguration extends YamlConfiguration {
 
 		List<String> lines = new ArrayList<>();
 		if (this.configComment != null) {
-			lines.add(this.configComment);
+			lines.add("# " + this.configComment);
 		}
 
 		for (String line : yaml.split("\n")) {
@@ -147,9 +147,14 @@ public class BukkitConfiguration extends YamlConfiguration {
 	 * Loads data from config file
 	 */
 	public void load() {
+		this.load(this.file);
+	}
+
+	@Override
+	public void load(File file) {
 		try {
 			this.cache.clear();
-			super.load(this.file);
+			super.load(file);
 		} catch (IOException | InvalidConfigurationException e) {
 			throw new InvalidConfigException("Could not load config file (name: " + this.file.getName() + ")", e);
 		}
