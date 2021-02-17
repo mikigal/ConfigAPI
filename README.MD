@@ -1,14 +1,17 @@
 # ConfigAPI
-Config API for Bukkit 1.8 - 1.16 based on Dynamic Proxies
+Config API for Bukkit 1.8 - 1.16 based on dynamic proxies
 
 ## Features:
- - Create config via Interface with `default` getters and setters
- - Automatic generation of YAML files based on Java code
- - Automatic updates of YAML file after adding new field to config
- - Support of comments in YAML files
- - Support of multiple config files
+ - Works with Bukkit 1.8 - 1.16
+ - Compatible with Java 8 - 15
+ - Multiple configuration files
+ - Fastly create configs via Java interface with `default` getters
+ - Automatic generation of config's YAML file
+ - Automatic update of config's file after add new methods to it's interface
+ - Support for setting new values to config
  - System of serializers for custom objects (e.g. ItemStack, Location)
- - Automatic translation of `&` based colors 
+ - Support of comments in YAML config
+ - Automatic translation of `&` based colors
  
 ## Import
 #### Gradle
@@ -108,11 +111,9 @@ public interface TestConfig extends Config {
 
 #### Automatic generated YAML from above Java code
 ```yaml
-values:
-  a: 1
-  b: 2
 example_message: '&cIt''s default value of example message' # This comment will be saved to YAML file!
 spawn_points:
+  structure: java.util.ArrayList
   type: org.bukkit.Location
   '0':
     world: world
@@ -135,14 +136,20 @@ spawn_points:
     z: 20.0
     yaw: 0.0
     pitch: 180.0
+values:
+  structure: java.util.HashMap
+  type: java.lang.Integer
+  a: 1
+  b: 2
 award:
   material: DIAMOND_SWORD
   amount: 1
   name: '&cAward'
   lore:
-  - '&aFirst line'
-  - '&cSecond line'
-
+    structure: java.util.ArrayList
+    type: java.lang.String
+    '0': '&aFirst line'
+    '1': '&cSecond line'
 ```
 
 ## Serializers
