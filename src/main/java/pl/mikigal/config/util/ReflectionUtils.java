@@ -4,7 +4,7 @@ import org.bukkit.Bukkit;
 import pl.mikigal.config.exception.InvalidConfigException;
 
 import java.lang.invoke.MethodHandles;
-import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 
@@ -15,30 +15,31 @@ import java.lang.reflect.Proxy;
  */
 public class ReflectionUtils {
 
-	private static final Constructor<MethodHandles.Lookup> lookupConstructor;
+	private static final MethodHandles.Lookup lookup;
 
 	static {
 		try {
-			lookupConstructor = MethodHandles.Lookup.class.getDeclaredConstructor(Class.class, Integer.TYPE);
-			lookupConstructor.setAccessible(true);
-		} catch (NoSuchMethodException e) {
-			throw new InvalidConfigException("Could not get MethodHandles.Lookup constructor", e);
+			Field field = MethodHandles.Lookup.class.getDeclaredField("IMPL_LOOKUP");
+			field.setAccessible(true);
+
+			lookup = (MethodHandles.Lookup) field.get(null);
+		} catch (NoSuchFieldException | IllegalAccessException e) {
+			throw new InvalidConfigException("Could not get MethodHandles.Lookup", e);
 		}
 	}
 
 	/**
 	 * Allows to get default value of method from interface
-	 * @param proxy instance of proxied object
-	 * @param method method of which you want to get defalt value
+	 * @param method method of which you want to get default value
 	 * @return default value of method from interface
 	 */
-	public static Object getDefaultValue(Object proxy, Method method) {
+	public static Object getDefaultValue(Method method) {
 		try {
 			Class<?> clazz = method.getDeclaringClass();
-			return lookupConstructor.newInstance(clazz, MethodHandles.Lookup.PRIVATE)
+			return lookup
 					.in(clazz)
 					.unreflectSpecial(method, clazz)
-					.bindTo(proxy)
+					.bindTo(createHelperProxy(method.getDeclaringClass()))
 					.invoke();
 		} catch (Throwable throwable) {
 			throw new InvalidConfigException(throwable);
@@ -50,8 +51,9 @@ public class ReflectionUtils {
 	 * @param clazz class which you want to get instance of
 	 * @return instance of proxy
 	 */
-	public static Object createHelperProxy(Class<?> clazz) {
-		return Proxy.newProxyInstance(clazz.getClassLoader(), new Class[]{clazz}, (Object object, Method method, Object[] args) -> null);
+	private static Object createHelperProxy(Class<?> clazz) {
+		return Proxy.newProxyInstance(clazz.getClassLoader(), new Class[]{clazz},
+				(Object object, Method method, Object[] args) -> null);
 	}
 
 	/**

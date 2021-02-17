@@ -219,7 +219,6 @@ public class ConfigInvocationHandler implements InvocationHandler {
 	 */
 	private boolean updateConfigFile() {
 		boolean modified = false;
-		Object proxy = ReflectionUtils.createHelperProxy(this.clazz);
 		for (Method method : this.clazz.getDeclaredMethods()) {
 			String name = method.getName();
 			if (!name.startsWith("get") && !name.startsWith("set")) {
@@ -230,7 +229,7 @@ public class ConfigInvocationHandler implements InvocationHandler {
 				continue;
 			}
 
-			Object defaultValue = ReflectionUtils.getDefaultValue(proxy, method);
+			Object defaultValue = ReflectionUtils.getDefaultValue(method);
 			if (defaultValue == null && !method.isAnnotationPresent(ConfigOptional.class)) {
 				throw new InvalidConfigException("Method " + method.getName() + " is not optional, but it's default value is null");
 			}
