@@ -26,6 +26,11 @@ public class UniversalMapSerializer extends Serializer<Map> {
 			throw new IllegalStateException("Can't set empty Map to config");
 		}
 
+		if (object.getClass().isMemberClass()) {
+			// Workaround for utilities, e. g. Collections.singletonMap()
+			object = new HashMap(object);
+		}
+
 		Class<?> generic = TypeUtils.getMapGeneric(object)[1];
 		Serializer<?> serializer = Serializers.of(generic);
 		if (serializer == null && !TypeUtils.isSimpleType(generic)) {

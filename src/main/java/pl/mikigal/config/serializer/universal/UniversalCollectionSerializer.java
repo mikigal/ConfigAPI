@@ -27,6 +27,11 @@ public class UniversalCollectionSerializer extends Serializer<Collection> {
 			throw new IllegalStateException("Can't set empty Collection to config");
 		}
 
+		if (object.getClass().isMemberClass()) {
+			// Workaround for utilities, e. g. Arrays.asList()
+			object = new ArrayList(object);
+		}
+
 		Class<?> generic = TypeUtils.getCollectionGeneric(object);
 		Serializer<?> serializer = Serializers.of(generic);
 		if (serializer == null && !TypeUtils.isSimpleType(generic)) {
