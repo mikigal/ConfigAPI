@@ -160,6 +160,10 @@ public class ConfigInvocationHandler implements InvocationHandler {
 				continue;
 			}
 
+			if (method.getReturnType().isArray()) {
+				throw new InvalidConfigException("Arrays are not supported, use Collection instead");
+			}
+
 			if (!method.isDefault()) {
 				throw new InvalidConfigException("Getter method " + name + " has not default value");
 			}
@@ -180,6 +184,10 @@ public class ConfigInvocationHandler implements InvocationHandler {
 			String name = method.getName();
 			if (!name.startsWith("set")) {
 				continue;
+			}
+
+			if (method.getReturnType().isArray()) {
+				throw new InvalidConfigException("Arrays are not supported, use Collection instead");
 			}
 
 			if (method.isDefault()) {

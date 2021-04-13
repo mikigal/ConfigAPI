@@ -71,6 +71,10 @@ public class BukkitConfiguration extends YamlConfiguration {
 
 	@Override
 	public void set(String path, Object value) {
+		if (value != null && value.getClass().isArray()) {
+			throw new InvalidConfigException("Arrays are not supported, use Collection instead");
+		}
+
 		if (!(value instanceof Collection) && !(value instanceof Map) && (value == null || TypeUtils.isSimpleType(value))) {
 			super.set(path, value);
 
