@@ -55,18 +55,18 @@ public class UniversalMapSerializer extends Serializer<Map> {
 		ConfigurationSection section = configuration.getConfigurationSection(path);
 
 		String mapRaw = section.getString("structure");
-		String serializerRaw = section.getString("type");
+		String type = section.getString("type");
 
 		Objects.requireNonNull(mapRaw, "Collection type is not defined for " + path);
-		Objects.requireNonNull(serializerRaw, "Serializer type is not defined for " + path);
+		Objects.requireNonNull(type, "Serializer type is not defined for " + path);
 
 		try {
-			Serializer<?> serializer = Serializers.of(serializerRaw);
+			Serializer<?> serializer = Serializers.of(type);
 			Class<?> mapClass = Class.forName(mapRaw);
-			Class<?> serializerClass = Class.forName(serializerRaw);
+			Class<?> typeClass = Class.forName(type);
 
-			if (serializer == null && !TypeUtils.isSimpleType(serializerClass)) {
-				throw new MissingSerializerException(serializerClass);
+			if (serializer == null && !TypeUtils.isSimpleType(typeClass)) {
+				throw new MissingSerializerException(typeClass);
 			}
 
 			Map map = (Map) mapClass.newInstance();

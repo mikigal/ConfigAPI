@@ -73,6 +73,17 @@ public class ConfigAPI {
 	}
 
 	/**
+	 * Initializes instance of Config with default values
+	 * (CAMEL_CASE as NameStyle, ABOVE_CONTENT as CommentStyle, enabled automatic translation of '&' based colors)
+	 * @param clazz Class of your Config interface
+	 * @param plugin Instance of your plugin
+	 * @return Instance of {@param clazz} ready to use methods
+	 */
+	public static <T extends Config> T init(Class<T> clazz, JavaPlugin plugin) {
+		return init(clazz, NameStyle.CAMEL_CASE, CommentStyle.ABOVE_CONTENT, true, plugin);
+	}
+
+	/**
 	 * Allows to get BukkitConfiguration object for config. It allows to access Bukkit's YamlConfiguration raw methods
 	 * @param name Name of your config
 	 * @see BukkitConfiguration

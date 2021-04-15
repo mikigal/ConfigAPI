@@ -25,6 +25,19 @@ public class ConversionUtils {
 	}
 
 	/**
+	 * Converts String to int
+	 * @param input number as String
+	 * @return number as int, if input is invalid returns Integer.MIN_VALUE
+	 */
+	public static int asInt(String input) {
+		try {
+			return Integer.parseInt(input);
+		} catch (NumberFormatException e) {
+			return Integer.MIN_VALUE;
+		}
+	}
+
+	/**
 	 * Translates text colored by '&' to ChatColor based
 	 * @param raw text colored by '&'
 	 * @return text translated to ChatColor

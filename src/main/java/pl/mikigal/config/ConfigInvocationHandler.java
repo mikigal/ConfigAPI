@@ -84,10 +84,6 @@ public class ConfigInvocationHandler implements InvocationHandler {
 			return null;
 		}
 
-		if (method.getReturnType().isArray()) {
-			throw new InvalidConfigException("Arrays are not supported, use Collection instead");
-		}
-
 		String path = this.getConfigPath(method);
 		Object value = this.configuration.get(path);
 
@@ -141,10 +137,6 @@ public class ConfigInvocationHandler implements InvocationHandler {
 			throw new InvalidConfigException("You can't set value to config setter that isn't @ConfigOptional (method: " + method + ")");
 		}
 
-		if (value != null && value.getClass().isArray()) {
-			throw new InvalidConfigException("Arrays are not supported, use Collection instead");
-		}
-
 		configuration.set(this.getConfigPath(method), value, method.getAnnotation(Comment.class));
 		this.configuration.save();
 	}
@@ -158,10 +150,6 @@ public class ConfigInvocationHandler implements InvocationHandler {
 			String name = method.getName();
 			if (!name.startsWith("get")) {
 				continue;
-			}
-
-			if (method.getReturnType().isArray()) {
-				throw new InvalidConfigException("Arrays are not supported, use Collection instead");
 			}
 
 			if (!method.isDefault()) {
@@ -184,10 +172,6 @@ public class ConfigInvocationHandler implements InvocationHandler {
 			String name = method.getName();
 			if (!name.startsWith("set")) {
 				continue;
-			}
-
-			if (method.getReturnType().isArray()) {
-				throw new InvalidConfigException("Arrays are not supported, use Collection instead");
 			}
 
 			if (method.isDefault()) {

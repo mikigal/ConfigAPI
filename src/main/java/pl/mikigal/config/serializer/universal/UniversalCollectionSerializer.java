@@ -6,6 +6,7 @@ import pl.mikigal.config.exception.InvalidConfigFileException;
 import pl.mikigal.config.exception.MissingSerializerException;
 import pl.mikigal.config.serializer.Serializer;
 import pl.mikigal.config.serializer.Serializers;
+import pl.mikigal.config.util.ConversionUtils;
 import pl.mikigal.config.util.TypeUtils;
 
 import java.lang.reflect.Method;
@@ -59,18 +60,18 @@ public class UniversalCollectionSerializer extends Serializer<Collection> {
 		ConfigurationSection section = configuration.getConfigurationSection(path);
 
 		String collectionRaw = section.getString("structure");
-		String serializerRaw = section.getString("type");
+		String type = section.getString("type");
 
 		Objects.requireNonNull(collectionRaw, "Collection type is not defined for " + path);
-		Objects.requireNonNull(serializerRaw, "Serializer type is not defined for " + path);
+		Objects.requireNonNull(type, "Serializer type is not defined for " + path);
 
 		try {
-			Serializer<?> serializer = Serializers.of(serializerRaw);
+			Serializer<?> serializer = Serializers.of(type);
 			Class<?> collectionClass = Class.forName(collectionRaw);
-			Class<?> serializerClass = Class.forName(serializerRaw);
+			Class<?> typeClass = Class.forName(type);
 
-			if (serializer == null && !TypeUtils.isSimpleType(serializerClass)) {
-				throw new MissingSerializerException(serializerClass);
+			if (serializer == null && !TypeUtils.isSimpleType(typeClass)) {
+				throw new MissingSerializerException(typeClass);
 			}
 
 			Collection collection = (Collection) collectionClass.newInstance();

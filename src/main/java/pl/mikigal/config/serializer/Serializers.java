@@ -6,6 +6,7 @@ import org.bukkit.inventory.ShapedRecipe;
 import org.bukkit.potion.PotionEffect;
 import pl.mikigal.config.exception.InvalidConfigException;
 import pl.mikigal.config.exception.MissingSerializerException;
+import pl.mikigal.config.serializer.universal.UniversalArraySerializer;
 import pl.mikigal.config.serializer.universal.UniversalCollectionSerializer;
 import pl.mikigal.config.serializer.universal.UniversalMapSerializer;
 
@@ -30,6 +31,7 @@ public class Serializers {
 		register(PotionEffect.class, new PotionEffectSerializer());
 		register(UUID.class, new UUIDSerializer());
 
+		register(Object[].class, new UniversalArraySerializer());
 		register(Collection.class, new UniversalCollectionSerializer());
 		register(Map.class, new UniversalMapSerializer());
 	}

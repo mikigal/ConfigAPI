@@ -88,6 +88,10 @@ public class TypeUtils {
 	 */
 	public static Class<?> getCollectionGeneric(Collection<?> collection) {
 		for (Object element : collection) {
+			if (element == null) {
+				continue;
+			}
+
 			return element.getClass();
 		}
 
@@ -102,10 +106,32 @@ public class TypeUtils {
 	 */
 	public static Class<?>[] getMapGeneric(Map<?, ?> map) {
 		for (Map.Entry<?, ?> entry : map.entrySet()) {
+			if (entry.getKey() == null || entry.getValue() == null) {
+				continue;
+			}
+
 			return new Class<?>[]{entry.getKey().getClass(), entry.getValue().getClass()};
 		}
 
 		throw new InvalidConfigException("Can't get generic type of empty Map");
+	}
+
+	/**
+	 * Return generic types of given non-empty array instance
+	 * @param array instance of array
+	 * @return generic type of given class
+	 * @throws InvalidConfigException if array is empty
+	 */
+	public static Class<?> getArrayGeneric(Object[] array) {
+		for (Object element : array) {
+			if (element == null) {
+				continue;
+			}
+
+			return element.getClass();
+		}
+
+		throw new InvalidConfigException("Can't get generic type of empty Array");
 	}
 
 	/**
