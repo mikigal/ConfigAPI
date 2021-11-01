@@ -9,7 +9,9 @@ import pl.mikigal.config.exception.MissingSerializerException;
 import pl.mikigal.config.serializer.universal.UniversalArraySerializer;
 import pl.mikigal.config.serializer.universal.UniversalCollectionSerializer;
 import pl.mikigal.config.serializer.universal.UniversalMapSerializer;
+import pl.mikigal.config.serializer.universal.UniversalObjectSerializer;
 
+import java.io.Serializable;
 import java.util.*;
 
 /**
@@ -22,7 +24,7 @@ public class Serializers {
 	/**
 	 * Map of registered serializers
 	 */
-	public static final Map<Class<?>, Serializer<?>> SERIALIZERS = new HashMap<>();
+	public static final Map<Class<?>, Serializer<?>> SERIALIZERS = new LinkedHashMap<>();
 
 	static {
 		register(ItemStack.class, new ItemStackSerializer());
@@ -34,6 +36,7 @@ public class Serializers {
 		register(Object[].class, new UniversalArraySerializer());
 		register(Collection.class, new UniversalCollectionSerializer());
 		register(Map.class, new UniversalMapSerializer());
+		register(Serializable.class, new UniversalObjectSerializer());
 	}
 
 	/**

@@ -217,6 +217,10 @@ public class ConfigInvocationHandler implements InvocationHandler {
 				throw new InvalidConfigException("Found non getter/setter method (name: " + name + ") in " + clazz.getCanonicalName());
 			}
 
+			if (method.getParameters().length != 0) {
+				throw new InvalidConfigException("Found method with parameters (name: " + name + ") in " + clazz.getCanonicalName());
+			}
+
 			if (!method.isDefault() || this.configuration.contains(this.getConfigPath(method))) {
 				continue;
 			}

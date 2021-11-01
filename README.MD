@@ -10,6 +10,7 @@ Config API for Bukkit 1.8 - 1.17 based on dynamic proxies
  - Automatic update of config's file after add new methods to it's interface
  - Support for setting new values to config
  - System of serializers for custom objects (e.g. ItemStack, Location)
+ - Automatic serialization of custom objects based on reflections (mainly for simple DAO/DTO objects)
  - Support of comments in YAML config
  - Automatic translation of `&` based colors
  
@@ -20,7 +21,7 @@ maven {
     url = 'https://repo.mikigal.pl/releases'
 }
 
-compile group: 'pl.mikigal', name: 'ConfigAPI', version: '1.1.6'
+compile group: 'pl.mikigal', name: 'ConfigAPI', version: '1.1.7'
 ```
 
 #### Maven
@@ -33,7 +34,7 @@ compile group: 'pl.mikigal', name: 'ConfigAPI', version: '1.1.6'
 <dependency>
     <groupId>pl.mikigal</groupId>
     <artifactId>ConfigAPI</artifactId>
-    <version>1.1.6</version>
+    <version>1.1.7</version>
     <scope>compile</scope>
 </dependency>
 ```
@@ -160,7 +161,41 @@ award:
  - ShapedRecipe
  - UUID
 
+#### Automatic serializing of custom objects
+If you have some simple DAO/DTO object you can serialize it without writing custom serializer!
+
+```java
+public class User implements Serializable { // It must implement Serializable interface
+	private String username;
+	private int kills;
+	private transient String temporary; // Transient fields will not be serialized!
+
+	public User() { // It MUST have no-args constructor!
+        
+    }
+
+	public User(String username, int kills, String temporary) {
+		this.username = username;
+		this.kills = kills;
+		this.temporary = temporary;
+    }
+	
+	// Getters and setters...
+}
+
+@ConfigName("config")
+public interface MyConfig extends Config {
+	
+	void setUser(User user);
+	
+	default User getTest() {
+		return new User("mikigal", 1, "some text");
+    }
+}
+```
+
 #### You can also make your own serializers
+For more advanced objects you can make your own serializer
 ```java
 public class PotionEffectSerializer extends Serializer<PotionEffect> {
 
@@ -198,3 +233,4 @@ public class TestPlugin extends JavaPlugin {
     
     }
 }
+
