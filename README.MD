@@ -166,30 +166,30 @@ If you have some simple DAO/DTO object you can serialize it without writing cust
 
 ```java
 public class User implements Serializable { // It must implement Serializable interface
-	private String username;
-	private int kills;
-	private transient String temporary; // Transient fields will not be serialized!
+    private String username;
+    private int kills;
+    private transient String temporary; // Transient fields will not be serialized!
 
-	public User() { // It MUST have no-args constructor!
+    public User() { // It MUST have no-args constructor!
         
     }
 
-	public User(String username, int kills, String temporary) {
-		this.username = username;
-		this.kills = kills;
-		this.temporary = temporary;
+    public User(String username, int kills, String temporary) {
+        this.username = username;
+        this.kills = kills;
+        this.temporary = temporary;
     }
-	
-	// Getters and setters...
+
+    // Getters and setters...
 }
 
 @ConfigName("config")
 public interface MyConfig extends Config {
-	
-	void setUser(User user);
-	
-	default User getTest() {
-		return new User("mikigal", 1, "some text");
+
+    void setUser(User user);
+
+    default User getTest() {
+        return new User("mikigal", 1, "some text");
     }
 }
 ```
