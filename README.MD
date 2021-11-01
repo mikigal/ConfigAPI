@@ -1,9 +1,9 @@
 # ConfigAPI
-Config API for Bukkit 1.8 - 1.16 based on dynamic proxies
+Config API for Bukkit 1.8 - 1.17 based on dynamic proxies
 
 ## Features:
- - Works with Bukkit 1.8 - 1.16
- - Compatible with Java 8 - 15
+ - Works with Bukkit 1.8 - 1.17
+ - Compatible with Java 8 - 17
  - Multiple configuration files
  - Fastly create configs via Java interface with `default` getters
  - Automatic generation of config's YAML file
@@ -20,7 +20,7 @@ maven {
     url = 'https://repo.mikigal.pl/releases'
 }
 
-compile group: 'pl.mikigal', name: 'ConfigAPI', version: '1.1.5'
+compile group: 'pl.mikigal', name: 'ConfigAPI', version: '1.1.6'
 ```
 
 #### Maven
@@ -33,7 +33,7 @@ compile group: 'pl.mikigal', name: 'ConfigAPI', version: '1.1.5'
 <dependency>
     <groupId>pl.mikigal</groupId>
     <artifactId>ConfigAPI</artifactId>
-    <version>1.1.5</version>
+    <version>1.1.6</version>
     <scope>compile</scope>
 </dependency>
 ```

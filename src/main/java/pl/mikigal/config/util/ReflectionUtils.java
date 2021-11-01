@@ -5,8 +5,11 @@ import pl.mikigal.config.exception.InvalidConfigException;
 
 import java.lang.invoke.MethodHandles;
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Utilities for reflections
@@ -15,18 +18,7 @@ import java.lang.reflect.Proxy;
  */
 public class ReflectionUtils {
 
-	private static final MethodHandles.Lookup lookup;
-
-	static {
-		try {
-			Field field = MethodHandles.Lookup.class.getDeclaredField("IMPL_LOOKUP");
-			field.setAccessible(true);
-
-			lookup = (MethodHandles.Lookup) field.get(null);
-		} catch (NoSuchFieldException | IllegalAccessException e) {
-			throw new InvalidConfigException("Could not get MethodHandles.Lookup", e);
-		}
-	}
+	private static final Map<Class<?>, MethodHandles.Lookup> lookups = new HashMap<>();
 
 	/**
 	 * Allows to get default value of method from interface
@@ -36,7 +28,7 @@ public class ReflectionUtils {
 	public static Object getDefaultValue(Method method) {
 		try {
 			Class<?> clazz = method.getDeclaringClass();
-			return lookup
+			return getLookup(clazz)
 					.in(clazz)
 					.unreflectSpecial(method, clazz)
 					.bindTo(createHelperProxy(method.getDeclaringClass()))
@@ -47,6 +39,46 @@ public class ReflectionUtils {
 	}
 
 	/**
+	 * Creates private lookup for given class
+	 * For Java 8 it gets value of MethodHandles.Lookup.IMPL_LOOKUP, for newer versions invokes MethodHandles.privateLookupIn()
+	 * Reference: https://github.com/OpenFeign/feign/commit/3494a76f160d6622129d59a6c79358dbccf6e6d6
+	 * @param clazz for which you want to create lookup
+	 * @return instance of lookup
+	 */
+	private static MethodHandles.Lookup createLookup(Class<?> clazz) {
+		boolean oldJava = isOldJava();
+
+		try {
+			if (oldJava) {
+				Field field = MethodHandles.Lookup.class.getDeclaredField("IMPL_LOOKUP");
+				field.setAccessible(true);
+
+				return (MethodHandles.Lookup) field.get(null);
+			}
+
+			Object privateLookupIn = MethodHandles.class.getMethod("privateLookupIn", Class.class, MethodHandles.Lookup.class)
+					.invoke(null, clazz, MethodHandles.lookup());
+
+			return (MethodHandles.Lookup) privateLookupIn;
+		} catch (IllegalAccessException | NoSuchFieldException | NoSuchMethodException | InvocationTargetException e) {
+			throw new InvalidConfigException("Could not get MethodHandles.Lookup for " + clazz.getName() + " (legacy way: " + oldJava + ")", e);
+		}
+	}
+
+	/**
+	 * Gets lookup for given class from cache or create new one if it doesn't exist
+	 * @param clazz for which you want to get lookup
+	 * @return instance of lookup for given class
+	 */
+	private static MethodHandles.Lookup getLookup(Class<?> clazz) {
+		if (!lookups.containsKey(clazz)) {
+			lookups.put(clazz, createLookup(clazz));
+		}
+
+		return lookups.get(clazz);
+	}
+
+	/**
 	 * Creates instance of proxy
 	 * @param clazz class which you want to get instance of
 	 * @return instance of proxy
@@ -54,6 +86,15 @@ public class ReflectionUtils {
 	private static Object createHelperProxy(Class<?> clazz) {
 		return Proxy.newProxyInstance(clazz.getClassLoader(), new Class[]{clazz},
 				(Object object, Method method, Object[] args) -> null);
+	}
+
+	/**
+	 * Check Java version
+	 * @return true for Java 8, false for Java 9 or newer
+	 */
+	private static boolean isOldJava() {
+		String javaVersion = System.getProperty("java.version");
+		return javaVersion.startsWith("1.8") || javaVersion.startsWith("8");
 	}
 
 	/**
