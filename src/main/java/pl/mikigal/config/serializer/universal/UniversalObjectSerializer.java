@@ -1,6 +1,7 @@
 package pl.mikigal.config.serializer.universal;
 
 import pl.mikigal.config.BukkitConfiguration;
+import pl.mikigal.config.exception.InvalidConfigException;
 import pl.mikigal.config.serializer.Serializer;
 
 import java.io.Serializable;
@@ -20,7 +21,7 @@ public class UniversalObjectSerializer extends Serializer<Serializable> {
 
 	@Override
 	protected void saveObject(String path, Serializable object, BukkitConfiguration configuration) {
-		this.validateDefaultConstructor(object);
+		this.validateDefaultConstructor(object.getClass());
 
 		try {
 			for (Field field : object.getClass().getDeclaredFields()) {
@@ -55,6 +56,7 @@ public class UniversalObjectSerializer extends Serializer<Serializable> {
 			throw new RuntimeException("An error occurred while deserializing class '" + classPath + "'", e);
 		}
 
+		this.validateDefaultConstructor(clazz);
 		if (!Serializable.class.isAssignableFrom(clazz)) {
 			throw new RuntimeException("Class " + classPath + " does not implements Serializable");
 		}
@@ -82,11 +84,11 @@ public class UniversalObjectSerializer extends Serializer<Serializable> {
 		return instance;
 	}
 
-	private void validateDefaultConstructor(Object object) {
+	private void validateDefaultConstructor(Class<?> clazz) {
 		try {
-			object.getClass().getConstructor();
+			clazz.getConstructor(); // Get no-args constructor for test
 		} catch (NoSuchMethodException e) {
-			throw new IllegalArgumentException("Class " + object.getClass().getName() + " does not have a default constructor");
+			throw new InvalidConfigException("Class " + clazz.getName() + " does not have a default constructor");
 		}
 	}
 }
