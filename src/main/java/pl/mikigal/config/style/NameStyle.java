@@ -51,6 +51,6 @@ public enum NameStyle {
 	 * @return name of field in config
 	 */
 	public String format(String methodName) {
-		return caseFormat.to(this.caseFormat, methodName.replace("get", "").replace("set", ""));
+		return CaseFormat.UPPER_CAMEL.to(this.caseFormat, methodName.replace("get", "").replace("set", ""));
 	}
 }
