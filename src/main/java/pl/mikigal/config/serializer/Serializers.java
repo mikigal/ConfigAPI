@@ -1,6 +1,8 @@
 package pl.mikigal.config.serializer;
 
 import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.block.Biome;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.ShapedRecipe;
 import org.bukkit.potion.PotionEffect;
@@ -32,6 +34,8 @@ public class Serializers {
 		register(ShapedRecipe.class, new ShapedRecipeSerializer());
 		register(PotionEffect.class, new PotionEffectSerializer());
 		register(UUID.class, new UUIDSerializer());
+		register(Material.class, new MaterialSerializer());
+		register(Biome.class, new BiomeSerializer());
 
 		register(Object[].class, new UniversalArraySerializer());
 		register(Collection.class, new UniversalCollectionSerializer());
