@@ -27,6 +27,8 @@ public class Serializers {
 	 * Map of registered serializers
 	 */
 	public static final Map<Class<?>, Serializer<?>> SERIALIZERS = new LinkedHashMap<>();
+	private static final Serializer UNIVERSAL_ARRAY_SERIALIZER = new UniversalArraySerializer();
+	private static final Serializer UNIVERSAL_OBJECT_SERIALIZER = new UniversalObjectSerializer();
 
 	static {
 		register(ItemStack.class, new ItemStackSerializer());
@@ -37,10 +39,8 @@ public class Serializers {
 		register(Material.class, new MaterialSerializer());
 		register(Biome.class, new BiomeSerializer());
 
-		register(Object[].class, new UniversalArraySerializer());
 		register(Collection.class, new UniversalCollectionSerializer());
 		register(Map.class, new UniversalMapSerializer());
-		register(Serializable.class, new UniversalObjectSerializer());
 	}
 
 	/**
@@ -59,6 +59,14 @@ public class Serializers {
 			}
 		}
 
+		if (clazz.isArray()) {
+			return UNIVERSAL_ARRAY_SERIALIZER;
+		}
+
+		if (Serializable.class.isAssignableFrom(clazz)) {
+			return UNIVERSAL_OBJECT_SERIALIZER;
+		}
+
 		return null;
 	}
 	/**
@@ -75,6 +83,14 @@ public class Serializers {
 			if (entry.getKey().isAssignableFrom(type.getClass())) {
 				return (Serializer<T>) entry.getValue();
 			}
+		}
+
+		if (type.getClass().isArray()) {
+			return UNIVERSAL_ARRAY_SERIALIZER;
+		}
+
+		if (type instanceof Serializable) {
+			return UNIVERSAL_OBJECT_SERIALIZER;
 		}
 
 		return null;

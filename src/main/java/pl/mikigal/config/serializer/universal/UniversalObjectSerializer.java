@@ -2,7 +2,10 @@ package pl.mikigal.config.serializer.universal;
 
 import pl.mikigal.config.BukkitConfiguration;
 import pl.mikigal.config.exception.InvalidConfigException;
+import pl.mikigal.config.exception.MissingSerializerException;
 import pl.mikigal.config.serializer.Serializer;
+import pl.mikigal.config.serializer.Serializers;
+import pl.mikigal.config.util.TypeUtils;
 
 import java.io.Serializable;
 import java.lang.reflect.Field;
@@ -33,7 +36,17 @@ public class UniversalObjectSerializer extends Serializer<Serializable> {
 				Object value = field.get(object);
 
 				try {
-					configuration.set(path + "." + configuration.getNameStyle().format(field.getName()), value);
+					if (TypeUtils.isSimpleType(field.getType())) {
+						configuration.set(path + "." + configuration.getNameStyle().format(field.getName()), value);
+					}
+					else {
+						Serializer<?> serializer = Serializers.of(field.getType());
+						if (serializer == null) {
+							throw new MissingSerializerException(field.getType());
+						}
+
+						serializer.serialize(path + "." + configuration.getNameStyle().format(field.getName()), value, configuration);
+					}
 				} catch (Exception e) {
 					throw new RuntimeException("An error occurred while serializing field '" + field.getName() + "' from class '" + object.getClass().getName() + "'", e);
 				}
@@ -47,7 +60,7 @@ public class UniversalObjectSerializer extends Serializer<Serializable> {
 
 	@Override
 	public Serializable deserialize(String path, BukkitConfiguration configuration) {
-		String classPath = configuration.getString(path + "." + configuration.getNameStyle().format("type"));
+		String classPath = configuration.getString(path + ".type");
 		Class<?> clazz;
 
 		try {
@@ -56,7 +69,7 @@ public class UniversalObjectSerializer extends Serializer<Serializable> {
 			throw new RuntimeException("An error occurred while deserializing class '" + classPath + "'", e);
 		}
 
-		this.validateDefaultConstructor(clazz);
+		//this.validateDefaultConstructor(clazz);
 		if (!Serializable.class.isAssignableFrom(clazz)) {
 			throw new RuntimeException("Class " + classPath + " does not implements Serializable");
 		}
@@ -75,7 +88,20 @@ public class UniversalObjectSerializer extends Serializer<Serializable> {
 				}
 
 				field.setAccessible(true);
-				field.set(instance, configuration.get(path + "." + configuration.getNameStyle().format(field.getName())));
+
+				Class<?> type = field.getType();
+				if (TypeUtils.isSimpleType(type)) {
+					field.set(instance, configuration.get(path + "." + configuration.getNameStyle().format(field.getName())));
+				}
+				else {
+					Serializer<?> serializer = Serializers.of(field.getType());
+					if (serializer == null) {
+						throw new MissingSerializerException(field.getType());
+					}
+
+					//System.out.println("Called deserialization with " + serializer.getClass().getName() + " for " + path + "." + configuration.getNameStyle().format(field.getName()));
+					field.set(instance, serializer.deserialize(path + "." + configuration.getNameStyle().format(field.getName()), configuration));
+				}
 			}
 		} catch (IllegalAccessException e) {
 			throw new RuntimeException("Could not deserialize " + classPath, e);

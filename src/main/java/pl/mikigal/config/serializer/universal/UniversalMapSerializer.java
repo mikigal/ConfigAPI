@@ -32,8 +32,10 @@ public class UniversalMapSerializer extends Serializer<Map> {
 		}
 
 		Class<?> generic = TypeUtils.getMapGeneric(object)[1];
-		Serializer<?> serializer = Serializers.of(generic);
-		if (serializer == null && !TypeUtils.isSimpleType(generic)) {
+		boolean simple = TypeUtils.isSimpleType(generic);
+
+		Serializer<?> serializer = simple ? null : Serializers.of(generic);
+		if (!simple && serializer == null) {
 			throw new MissingSerializerException(generic);
 		}
 
@@ -41,7 +43,7 @@ public class UniversalMapSerializer extends Serializer<Map> {
 		configuration.set(path + ".type", generic.getName());
 
 		for (Map.Entry<?, ?> entry : ((Map<?, ?>) object).entrySet()) {
-			if (serializer == null) {
+			if (simple) {
 				configuration.set(path + "." + entry.getKey(), entry.getValue());
 				continue;
 			}
@@ -61,12 +63,13 @@ public class UniversalMapSerializer extends Serializer<Map> {
 		Objects.requireNonNull(type, "Serializer type is not defined for " + path);
 
 		try {
-			Serializer<?> serializer = Serializers.of(type);
 			Class<?> mapClass = Class.forName(mapRaw);
 			Class<?> typeClass = Class.forName(type);
+			boolean simple = TypeUtils.isSimpleType(typeClass);
 
-			if (serializer == null && !TypeUtils.isSimpleType(typeClass)) {
-				throw new MissingSerializerException(typeClass);
+			Serializer<?> serializer = simple ? null : Serializers.of(typeClass);
+			if (!simple && serializer == null) {
+				throw new MissingSerializerException(type);
 			}
 
 			Map map = (Map) mapClass.newInstance();
@@ -75,7 +78,7 @@ public class UniversalMapSerializer extends Serializer<Map> {
 					continue;
 				}
 
-				if (serializer == null) {
+				if (simple) {
 					map.put(key, configuration.get(path + "." + key));
 					continue;
 				}

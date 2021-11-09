@@ -24,8 +24,10 @@ public class UniversalArraySerializer extends Serializer<Object[]> {
 		}
 
 		Class<?> generic = TypeUtils.getArrayGeneric(object);
-		Serializer<?> serializer = Serializers.of(generic);
-		if (serializer == null && !TypeUtils.isSimpleType(generic)) {
+		boolean simple = TypeUtils.isSimpleType(generic);
+
+		Serializer<?> serializer = simple ? null : Serializers.of(generic);
+		if (!simple && serializer == null) {
 			throw new MissingSerializerException(generic);
 		}
 
@@ -33,7 +35,7 @@ public class UniversalArraySerializer extends Serializer<Object[]> {
 
 		int index = 0;
 		for (Object element : object) {
-			if (serializer == null) {
+			if (simple) {
 				configuration.set(path + "." + index, element);
 			}
 			else {
@@ -60,11 +62,12 @@ public class UniversalArraySerializer extends Serializer<Object[]> {
 		Objects.requireNonNull(type, "Serializer type is not defined for " + path);
 
 		try {
-			Serializer<?> serializer = Serializers.of(type);
 			Class<?> typeClass = Class.forName(type);
+			boolean simple = TypeUtils.isSimpleType(typeClass);
 
-			if (serializer == null && !TypeUtils.isSimpleType(typeClass)) {
-				throw new MissingSerializerException(typeClass);
+			Serializer<?> serializer = simple ? null : Serializers.of(typeClass);
+			if (!simple && serializer == null) {
+				throw new MissingSerializerException(type);
 			}
 
 			int length = Collections.max(keys
@@ -80,7 +83,7 @@ public class UniversalArraySerializer extends Serializer<Object[]> {
 				}
 
 				int index = Integer.parseInt(key);
-				if (serializer == null) {
+				if (simple) {
 					array[index] = configuration.get(path + "." + index);
 					continue;
 				}
