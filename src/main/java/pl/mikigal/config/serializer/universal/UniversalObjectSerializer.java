@@ -69,7 +69,7 @@ public class UniversalObjectSerializer extends Serializer<Serializable> {
 			throw new RuntimeException("An error occurred while deserializing class '" + classPath + "'", e);
 		}
 
-		//this.validateDefaultConstructor(clazz);
+		this.validateDefaultConstructor(clazz);
 		if (!Serializable.class.isAssignableFrom(clazz)) {
 			throw new RuntimeException("Class " + classPath + " does not implements Serializable");
 		}
@@ -99,7 +99,6 @@ public class UniversalObjectSerializer extends Serializer<Serializable> {
 						throw new MissingSerializerException(field.getType());
 					}
 
-					//System.out.println("Called deserialization with " + serializer.getClass().getName() + " for " + path + "." + configuration.getNameStyle().format(field.getName()));
 					field.set(instance, serializer.deserialize(path + "." + configuration.getNameStyle().format(field.getName()), configuration));
 				}
 			}

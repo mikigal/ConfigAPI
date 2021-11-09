@@ -159,4 +159,30 @@ public class TypeUtils {
 	public static Class<?> getWrapper(Class<?> primitive) {
 		return WRAPPERS.get(primitive);
 	}
+
+	/**
+	 * Check is given object array of primitives
+	 * @param object to check
+	 * @return true if given object is array of primitives, else false
+	 */
+	public static boolean isPrimitiveArray(Object object) {
+		return isPrimitiveArray(object.getClass());
+	}
+
+	/**
+	 * Check is given clazz is array of primitives
+	 * @param clazz to check
+	 * @return true if given clazz is array of primitives, else false
+	 */
+	public static boolean isPrimitiveArray(Class<?> clazz) {
+		return clazz.isArray() ||
+				clazz.equals(boolean[].class) ||
+				clazz.equals(int[].class) ||
+				clazz.equals(char[].class) ||
+				clazz.equals(byte[].class) ||
+				clazz.equals(short[].class) ||
+				clazz.equals(double[].class) ||
+				clazz.equals(long[].class) ||
+				clazz.equals(float[].class);
+	}
 }

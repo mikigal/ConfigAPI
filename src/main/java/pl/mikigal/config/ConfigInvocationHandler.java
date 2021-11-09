@@ -163,6 +163,10 @@ public class ConfigInvocationHandler implements InvocationHandler {
 				}
 			}
 
+			if (TypeUtils.isPrimitiveArray(method.getReturnType())) {
+				throw new InvalidConfigException("Arrays with primitives are not supported");
+			}
+
 			ConfigPath configPath = method.getAnnotation(ConfigPath.class);
 			this.configPaths.put(name, configPath == null ? configuration.getNameStyle().format(name) : configPath.value());
 		}
@@ -180,6 +184,10 @@ public class ConfigInvocationHandler implements InvocationHandler {
 
 			if (!method.getReturnType().equals(void.class)) {
 				throw new InvalidConfigException("Setter method " + name + " is not void type");
+			}
+
+			if (TypeUtils.isPrimitiveArray(method.getReturnType())) {
+				throw new InvalidConfigException("Arrays with primitives are not supported");
 			}
 
 			if (method.getParameterCount() != 1) {
