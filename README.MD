@@ -1,8 +1,8 @@
 # ConfigAPI
-Config API for Bukkit 1.8 - 1.17 based on dynamic proxies
+Config API for Bukkit 1.8 - 1.18 based on dynamic proxies
 
 ## Features:
- - Works with Bukkit 1.8 - 1.17
+ - Works with Bukkit 1.8 - 1.18
  - Compatible with Java 8 - 17
  - Multiple configuration files
  - Fastly create configs via Java interface with `default` getters
@@ -13,7 +13,7 @@ Config API for Bukkit 1.8 - 1.17 based on dynamic proxies
  - Automatic serialization of custom objects based on reflections (mainly for simple DAO/DTO objects)
  - Support of comments in YAML config
  - Automatic translation of `&` based colors
- 
+
 ## Import
 #### Gradle
 ```groovy
@@ -38,7 +38,7 @@ compile group: 'pl.mikigal', name: 'ConfigAPI', version: '1.2.0'
     <scope>compile</scope>
 </dependency>
 ```
- 
+
 ## How to use?
 #### Java code
 ```java
@@ -82,7 +82,7 @@ public interface TestConfig extends Config {
     }
 
     default ItemStack getAward() {
-        return Item.of(Material.DIAMOND_SWORD) 
+        return Item.of(Material.DIAMOND_SWORD)
             .name("&cAward")
             .lore("&aFirst line", "&cSecond line")
             .toItem();
@@ -95,7 +95,7 @@ public interface TestConfig extends Config {
         Map<String, Integer> map = new HashMap<>();
         map.put("a", 1);
         map.put("b", 2);
-        
+
         return map;
     }
 
@@ -154,7 +154,7 @@ award:
 ```
 
 ## Serializers
-### API has built-in serializers for: 
+### API has built-in serializers for:
  - ItemStack
  - Location
  - PotionEffect
@@ -171,7 +171,7 @@ public class User implements Serializable { // It must implement Serializable in
     private transient String temporary; // Transient fields will not be serialized!
 
     public User() { // It MUST have no-args constructor!
-        
+
     }
 
     public User(String username, int kills, String temporary) {
@@ -201,7 +201,7 @@ public class PotionEffectSerializer extends Serializer<PotionEffect> {
 
     @Override
     protected void saveObject(String path, PotionEffect object, BukkitConfiguration configuration) {
-        // In saveObject() method you have to set data of object to config. You can use set() method to set another object which need serialization too 
+        // In saveObject() method you have to set data of object to config. You can use set() method to set another object which need serialization too
         configuration.set(path + ".type", object.getType().getName());
         configuration.set(path + ".duration", object.getDuration());
         configuration.set(path + ".amplifier", object.getAmplifier());
@@ -230,7 +230,7 @@ public class TestPlugin extends JavaPlugin {
         ConfigAPI.registerSerializer(PotionEffect.class, new PotionEffectSerializer());
 
         // Init your configs...
-    
+
     }
 }
 
