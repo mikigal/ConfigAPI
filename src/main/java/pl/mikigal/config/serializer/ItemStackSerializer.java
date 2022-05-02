@@ -72,7 +72,7 @@ public class ItemStackSerializer extends Serializer<ItemStack> {
 		int amount = section.contains("amount") ? section.getInt("amount") : 1;
 		short durability = section.contains("durability") ? (short) section.getInt("durability") : 0;
 		String name = section.getString("name");
-		List<String> lore = section.getStringList("lore");
+		List<String> lore = Serializers.of(List.class).deserialize(path + ".lore", configuration);
 
 		ItemStack itemStack = new ItemStack(material, amount, durability);
 		ItemMeta itemMeta = itemStack.getItemMeta();
