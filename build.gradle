@@ -12,8 +12,8 @@ publishing {
             name = "repo.mikigal.pl"
             url = uri("https://repo.mikigal.pl/releases")
             credentials {
-                username = System.getenv("REPO_USERNAME")
-                password = System.getenv("REPO_TOKEN")
+                username = project.findProperty("REPO_USERNAME")
+                password = project.findProperty("REPO_TOKEN")
             }
         }
     }
