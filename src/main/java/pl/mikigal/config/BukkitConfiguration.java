@@ -30,6 +30,7 @@ public class BukkitConfiguration extends YamlConfiguration {
 	/**
 	 * Properties of config
 	 */
+	private final File directory;
 	private final File file;
 	private final NameStyle nameStyle;
 	private final CommentStyle commentStyle;
@@ -42,7 +43,9 @@ public class BukkitConfiguration extends YamlConfiguration {
 	private final Map<String, Object> cache;
 	private final Map<String, String> comments;
 
-	public BukkitConfiguration(File file, NameStyle nameStyle, CommentStyle commentStyle, boolean automaticColorStrings, String configComment) {
+	public BukkitConfiguration(File directory, File file, NameStyle nameStyle, CommentStyle commentStyle,
+							   boolean automaticColorStrings, String configComment) {
+		this.directory = directory;
 		this.file = file;
 		this.nameStyle = nameStyle;
 		this.commentStyle = commentStyle;
@@ -176,8 +179,8 @@ public class BukkitConfiguration extends YamlConfiguration {
 	 */
 	private void copyDefaultConfig() {
 		try {
-			if (!ConfigAPI.getPlugin().getDataFolder().exists()) {
-				ConfigAPI.getPlugin().getDataFolder().mkdir();
+			if (!directory.exists()) {
+				directory.mkdir();
 			}
 
 			if (this.file.exists()) {

@@ -43,14 +43,14 @@ public class ConfigAPI {
 	 * @param nameStyle Style of config's fields names
 	 * @param commentStyle Style of config's comments
 	 * @param automaticColorStrings Automatic translate '&' based colors
-	 * @param dir The config's directory.
+	 * @param directory The config's directory.
 	 * @param plugin Instance of your plugin
 	 * @see NameStyle
 	 * @see CommentStyle
 	 * @return Instance of {@param clazz} ready to use methods
 	 */
 	public static <T extends Config> T init(Class<T> clazz, NameStyle nameStyle, CommentStyle commentStyle,
-											boolean automaticColorStrings, File dir, JavaPlugin plugin){
+											boolean automaticColorStrings, File directory, JavaPlugin plugin){
 
 		ConfigAPI.plugin = plugin;
 		ConfigName configName = clazz.getAnnotation(ConfigName.class);
@@ -62,9 +62,10 @@ public class ConfigAPI {
 		String configComment = configCommentAnnotation == null ? null : configCommentAnnotation.value();
 
 		String name = configName.value() + (configName.value().endsWith(".yml") ? "" : ".yml");
-		File file = new File(dir, name);
+		File file = new File(directory, name);
 
-		BukkitConfiguration rawConfiguration = new BukkitConfiguration(file, nameStyle, commentStyle, automaticColorStrings, configComment);
+		BukkitConfiguration rawConfiguration = new BukkitConfiguration(directory, file, nameStyle, commentStyle,
+				automaticColorStrings, configComment);
 		rawConfigurations.put(name, rawConfiguration);
 
 		T configuration = (T) Proxy.newProxyInstance(clazz.getClassLoader(), new Class[]{clazz},
@@ -100,19 +101,20 @@ public class ConfigAPI {
 	 * @return Instance of {@param clazz} ready to use methods
 	 */
 	public static <T extends Config> T init(Class<T> clazz, JavaPlugin plugin) {
-		return init(clazz, NameStyle.CAMEL_CASE, CommentStyle.ABOVE_CONTENT, true, plugin);
+		return init(clazz, NameStyle.CAMEL_CASE, CommentStyle.ABOVE_CONTENT,
+				true, plugin.getDataFolder(), plugin);
 	}
 
 	/**
 	 * Initializes instance of Config with default values
 	 * (CAMEL_CASE as NameStyle, ABOVE_CONTENT as CommentStyle, enabled automatic translation of '&' based colors)
 	 * @param clazz Class of your Config interface
-	 * @param dir The config's directory.
+	 * @param directory The config's directory.
 	 * @param plugin Instance of your plugin
 	 * @return Instance of {@param clazz} ready to use methods
 	 */
-	public static <T extends Config> T init(Class<T> clazz, File dir, JavaPlugin plugin) {
-		return init(clazz, NameStyle.CAMEL_CASE, CommentStyle.ABOVE_CONTENT, true, dir, plugin);
+	public static <T extends Config> T init(Class<T> clazz, File directory, JavaPlugin plugin) {
+		return init(clazz, NameStyle.CAMEL_CASE, CommentStyle.ABOVE_CONTENT, true, directory, plugin);
 	}
 
 	/**
