@@ -43,13 +43,15 @@ public class ConfigAPI {
 	 * @param nameStyle Style of config's fields names
 	 * @param commentStyle Style of config's comments
 	 * @param automaticColorStrings Automatic translate '&' based colors
+	 * @param dir The config's directory.
 	 * @param plugin Instance of your plugin
 	 * @see NameStyle
 	 * @see CommentStyle
 	 * @return Instance of {@param clazz} ready to use methods
 	 */
 	public static <T extends Config> T init(Class<T> clazz, NameStyle nameStyle, CommentStyle commentStyle,
-											boolean automaticColorStrings, JavaPlugin plugin) {
+											boolean automaticColorStrings, File dir, JavaPlugin plugin){
+
 		ConfigAPI.plugin = plugin;
 		ConfigName configName = clazz.getAnnotation(ConfigName.class);
 		if (configName == null) {
@@ -60,7 +62,7 @@ public class ConfigAPI {
 		String configComment = configCommentAnnotation == null ? null : configCommentAnnotation.value();
 
 		String name = configName.value() + (configName.value().endsWith(".yml") ? "" : ".yml");
-		File file = new File(plugin.getDataFolder(), name);
+		File file = new File(dir, name);
 
 		BukkitConfiguration rawConfiguration = new BukkitConfiguration(file, nameStyle, commentStyle, automaticColorStrings, configComment);
 		rawConfigurations.put(name, rawConfiguration);
@@ -73,6 +75,24 @@ public class ConfigAPI {
 	}
 
 	/**
+	 * Initializes instance of Config
+	 * @param clazz Class of your Config interface
+	 * @param nameStyle Style of config's fields names
+	 * @param commentStyle Style of config's comments
+	 * @param automaticColorStrings Automatic translate '&' based colors
+	 * @param plugin Instance of your plugin
+	 * @see NameStyle
+	 * @see CommentStyle
+	 * @return Instance of {@param clazz} ready to use methods
+	 */
+	public static <T extends Config> T init(Class<T> clazz, NameStyle nameStyle, CommentStyle commentStyle,
+											boolean automaticColorStrings, JavaPlugin plugin) {
+		return init(clazz, nameStyle, commentStyle, automaticColorStrings, plugin.getDataFolder(), plugin);
+	}
+
+
+
+	/**
 	 * Initializes instance of Config with default values
 	 * (CAMEL_CASE as NameStyle, ABOVE_CONTENT as CommentStyle, enabled automatic translation of '&' based colors)
 	 * @param clazz Class of your Config interface
@@ -81,6 +101,18 @@ public class ConfigAPI {
 	 */
 	public static <T extends Config> T init(Class<T> clazz, JavaPlugin plugin) {
 		return init(clazz, NameStyle.CAMEL_CASE, CommentStyle.ABOVE_CONTENT, true, plugin);
+	}
+
+	/**
+	 * Initializes instance of Config with default values
+	 * (CAMEL_CASE as NameStyle, ABOVE_CONTENT as CommentStyle, enabled automatic translation of '&' based colors)
+	 * @param clazz Class of your Config interface
+	 * @param dir The config's directory.
+	 * @param plugin Instance of your plugin
+	 * @return Instance of {@param clazz} ready to use methods
+	 */
+	public static <T extends Config> T init(Class<T> clazz, File dir, JavaPlugin plugin) {
+		return init(clazz, NameStyle.CAMEL_CASE, CommentStyle.ABOVE_CONTENT, true, dir, plugin);
 	}
 
 	/**
