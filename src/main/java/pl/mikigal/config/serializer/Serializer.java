@@ -44,6 +44,7 @@ public abstract class Serializer<T> {
 		}
 
 		this.saveObject(path, (T) object, configuration);
+		configuration.addToCache(path, object);
 	}
 
 	/**
