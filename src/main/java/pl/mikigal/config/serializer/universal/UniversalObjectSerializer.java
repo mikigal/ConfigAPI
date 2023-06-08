@@ -1,6 +1,7 @@
 package pl.mikigal.config.serializer.universal;
 
 import pl.mikigal.config.BukkitConfiguration;
+import pl.mikigal.config.annotation.ConfigOptional;
 import pl.mikigal.config.exception.InvalidConfigException;
 import pl.mikigal.config.exception.MissingSerializerException;
 import pl.mikigal.config.serializer.Serializer;
