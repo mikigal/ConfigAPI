@@ -11,7 +11,7 @@ import java.lang.annotation.Target;
  * @since 1.0
  * @author Mikołaj Gałązka
  */
-@Target({ElementType.METHOD})
+@Target({ElementType.FIELD, ElementType.METHOD})
 @Retention(value = RetentionPolicy.RUNTIME)
 public @interface ConfigOptional {
 }
