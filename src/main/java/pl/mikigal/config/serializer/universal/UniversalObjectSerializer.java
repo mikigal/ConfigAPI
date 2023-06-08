@@ -39,7 +39,9 @@ public class UniversalObjectSerializer extends Serializer<Serializable> {
 				// Check if field is optional
 				if (field.isAnnotationPresent(ConfigOptional.class)) {
 				    field.setAccessible(false);
-				    if (value == null) continue;
+				    if (value == null) {
+						continue;
+					}
 				}
 
 				try {
@@ -100,7 +102,9 @@ public class UniversalObjectSerializer extends Serializer<Serializable> {
 
 				// Check if field is optional
 				if (field.isAnnotationPresent(ConfigOptional.class)) {
-				    if (configuration.get(fullpath) == null) continue;
+				    if (configuration.get(fullpath) == null){
+						continue;
+					}
 				}
 
 				Class<?> type = field.getType();
