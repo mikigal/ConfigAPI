@@ -1,6 +1,7 @@
 package pl.mikigal.config.serializer.universal;
 
 import pl.mikigal.config.BukkitConfiguration;
+import pl.mikigal.config.annotation.ConfigOptional;
 import pl.mikigal.config.exception.InvalidConfigException;
 import pl.mikigal.config.exception.MissingSerializerException;
 import pl.mikigal.config.serializer.Serializer;
@@ -17,7 +18,7 @@ import java.lang.reflect.Modifier;
  * Class must have default constructor (no-args).
  * @see Serializer
  * @see Serializable
- * @since 1.1.7
+ * @since 1.1.8
  * @author Mikołaj Gałązka
  */
 public class UniversalObjectSerializer extends Serializer<Serializable> {
@@ -34,6 +35,14 @@ public class UniversalObjectSerializer extends Serializer<Serializable> {
 
 				field.setAccessible(true);
 				Object value = field.get(object);
+				
+				// Check if field is optional
+				if (field.isAnnotationPresent(ConfigOptional.class)) {
+				    field.setAccessible(false);
+				    if (value == null) {
+						continue;
+					}
+				}
 
 				try {
 					if (TypeUtils.isSimpleType(field.getType())) {
@@ -88,6 +97,15 @@ public class UniversalObjectSerializer extends Serializer<Serializable> {
 				}
 
 				field.setAccessible(true);
+				
+				String fullpath = path + "." + configuration.getNameStyle().format(field.getName());
+
+				// Check if field is optional
+				if (field.isAnnotationPresent(ConfigOptional.class)) {
+				    if (configuration.get(fullpath) == null){
+						continue;
+					}
+				}
 
 				Class<?> type = field.getType();
 				if (TypeUtils.isSimpleType(type)) {
