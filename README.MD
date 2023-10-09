@@ -1,8 +1,8 @@
 # ConfigAPI
-Config API for Bukkit 1.8 - 1.19 based on dynamic proxies
+Config API for Bukkit 1.8 - 1.20 based on dynamic proxies
 
 ## Features:
- - Works with Bukkit 1.8 - 1.19
+ - Works with Bukkit 1.8 - 1.20
  - Compatible with Java 8 - 17
  - Multiple configuration files
  - Fastly create configs via Java interface with `default` getters
