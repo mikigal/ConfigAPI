@@ -2,9 +2,7 @@ package pl.mikigal.config;
 
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.YamlConfiguration;
-import org.bukkit.configuration.file.YamlRepresenter;
 import org.yaml.snakeyaml.DumperOptions;
-import org.yaml.snakeyaml.Yaml;
 import pl.mikigal.config.annotation.Comment;
 import pl.mikigal.config.exception.InvalidConfigException;
 import pl.mikigal.config.exception.MissingSerializerException;
@@ -112,6 +110,8 @@ public class BukkitConfiguration extends YamlConfiguration {
 	 */
 	@Override
 	public String saveToString() {
+		this.overrideMaxLineWidth();
+
 		String yaml = super.saveToString();
 
 		List<String> lines = new ArrayList<>();
@@ -205,6 +205,21 @@ public class BukkitConfiguration extends YamlConfiguration {
 			input.close();
 		} catch (IOException e) {
 			throw new InvalidConfigException("Could not save default file", e);
+		}
+	}
+
+	/**
+	 * Set SnakeYaml's max line width to max Integer value.
+	 * Required for inline comments
+	 */
+	private void overrideMaxLineWidth() {
+		try {
+			Field yamlOptionsField = YamlConfiguration.class.getDeclaredField("yamlOptions");
+			yamlOptionsField.setAccessible(true);
+			DumperOptions yamlOptions = (DumperOptions) yamlOptionsField.get(this);
+			yamlOptions.setWidth(Integer.MAX_VALUE);
+		} catch (Exception e) {
+			throw new RuntimeException("Could not set max YAML line width", e);
 		}
 	}
 
