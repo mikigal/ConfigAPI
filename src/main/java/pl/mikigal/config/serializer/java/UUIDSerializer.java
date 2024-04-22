@@ -1,6 +1,7 @@
-package pl.mikigal.config.serializer;
+package pl.mikigal.config.serializer.java;
 
 import pl.mikigal.config.BukkitConfiguration;
+import pl.mikigal.config.serializer.Serializer;
 
 import java.util.UUID;
 

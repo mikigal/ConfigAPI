@@ -1,9 +1,10 @@
-package pl.mikigal.config.serializer;
+package pl.mikigal.config.serializer.bukkit;
 
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import pl.mikigal.config.BukkitConfiguration;
 import pl.mikigal.config.exception.InvalidConfigFileException;
+import pl.mikigal.config.serializer.Serializer;
 
 /**
  * Built-in serializer for PotionEffect

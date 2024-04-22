@@ -1,4 +1,4 @@
-package pl.mikigal.config.serializer;
+package pl.mikigal.config.serializer.bukkit;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -6,6 +6,7 @@ import org.bukkit.World;
 import org.bukkit.configuration.ConfigurationSection;
 import pl.mikigal.config.BukkitConfiguration;
 import pl.mikigal.config.exception.InvalidConfigFileException;
+import pl.mikigal.config.serializer.Serializer;
 import pl.mikigal.config.util.ConversionUtils;
 
 /**

@@ -21,7 +21,7 @@ maven {
     url = 'https://repo.mikigal.pl/releases'
 }
 
-compile group: 'pl.mikigal', name: 'ConfigAPI', version: '1.2.5'
+compile group: 'pl.mikigal', name: 'ConfigAPI', version: '1.2.6'
 ```
 
 #### Maven
@@ -34,7 +34,7 @@ compile group: 'pl.mikigal', name: 'ConfigAPI', version: '1.2.5'
 <dependency>
     <groupId>pl.mikigal</groupId>
     <artifactId>ConfigAPI</artifactId>
-    <version>1.2.5</version>
+    <version>1.2.6</version>
     <scope>compile</scope>
 </dependency>
 ```

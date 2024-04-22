@@ -1,4 +1,4 @@
-package pl.mikigal.config.serializer;
+package pl.mikigal.config.serializer.bukkit;
 
 import org.bukkit.Material;
 import org.bukkit.configuration.ConfigurationSection;
@@ -7,6 +7,8 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import pl.mikigal.config.BukkitConfiguration;
 import pl.mikigal.config.exception.InvalidConfigFileException;
+import pl.mikigal.config.serializer.Serializer;
+import pl.mikigal.config.serializer.Serializers;
 import pl.mikigal.config.util.ConversionUtils;
 
 import java.util.ArrayList;

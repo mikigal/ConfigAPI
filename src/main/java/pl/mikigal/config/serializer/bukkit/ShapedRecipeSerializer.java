@@ -1,4 +1,4 @@
-package pl.mikigal.config.serializer;
+package pl.mikigal.config.serializer.bukkit;
 
 import org.bukkit.Material;
 import org.bukkit.configuration.ConfigurationSection;
@@ -8,6 +8,8 @@ import org.bukkit.plugin.Plugin;
 import pl.mikigal.config.BukkitConfiguration;
 import pl.mikigal.config.ConfigAPI;
 import pl.mikigal.config.exception.InvalidConfigException;
+import pl.mikigal.config.serializer.Serializer;
+import pl.mikigal.config.serializer.Serializers;
 import pl.mikigal.config.util.ReflectionUtils;
 
 import java.lang.reflect.Constructor;

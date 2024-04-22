@@ -1,8 +1,9 @@
-package pl.mikigal.config.serializer;
+package pl.mikigal.config.serializer.bukkit;
 
 import org.bukkit.Location;
 import org.bukkit.Material;
 import pl.mikigal.config.BukkitConfiguration;
+import pl.mikigal.config.serializer.Serializer;
 
 /**
  * Built-in serializer for Material

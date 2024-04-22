@@ -8,6 +8,9 @@ import org.bukkit.inventory.ShapedRecipe;
 import org.bukkit.potion.PotionEffect;
 import pl.mikigal.config.exception.InvalidConfigException;
 import pl.mikigal.config.exception.MissingSerializerException;
+import pl.mikigal.config.serializer.bukkit.*;
+import pl.mikigal.config.serializer.java.EnumSerializer;
+import pl.mikigal.config.serializer.java.UUIDSerializer;
 import pl.mikigal.config.serializer.universal.UniversalArraySerializer;
 import pl.mikigal.config.serializer.universal.UniversalCollectionSerializer;
 import pl.mikigal.config.serializer.universal.UniversalMapSerializer;
@@ -31,11 +34,13 @@ public class Serializers {
 	private static final Serializer UNIVERSAL_OBJECT_SERIALIZER = new UniversalObjectSerializer();
 
 	static {
+		register(UUID.class, new UUIDSerializer());
+		register(Enum.class, new EnumSerializer());
+
 		register(ItemStack.class, new ItemStackSerializer());
 		register(Location.class, new LocationSerializer());
 		register(ShapedRecipe.class, new ShapedRecipeSerializer());
 		register(PotionEffect.class, new PotionEffectSerializer());
-		register(UUID.class, new UUIDSerializer());
 		register(Material.class, new MaterialSerializer());
 		register(Biome.class, new BiomeSerializer());
 
