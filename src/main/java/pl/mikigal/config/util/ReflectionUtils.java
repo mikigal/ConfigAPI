@@ -105,4 +105,13 @@ public class ReflectionUtils {
 		int version = Integer.parseInt(Bukkit.getBukkitVersion().split("\\.")[1].split("-")[0]);
 		return version >= 12;
 	}
+
+	/**
+	 * Check bukkit versions
+	 * @return false for Minecraft 1.18 or older, true for 1.18 or newer
+	 */
+	public static boolean isVeryNewVersion() {
+		int version = Integer.parseInt(Bukkit.getBukkitVersion().split("\\.")[1].split("-")[0]);
+		return version >= 18;
+	}
 }
