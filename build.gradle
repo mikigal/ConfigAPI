@@ -45,7 +45,3 @@ jar {
         configurations.compile.collect { it.isDirectory() ? it : zipTree(it) }
     }
 }
-
-tasks.withType(Jar) {
-    destinationDir = file("C:\\Users\\mikigal\\Desktop\\test\\plugins")
-}
