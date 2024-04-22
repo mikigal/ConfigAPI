@@ -1,5 +1,6 @@
 package pl.mikigal.config;
 
+import org.bukkit.Bukkit;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.yaml.snakeyaml.DumperOptions;
@@ -11,6 +12,7 @@ import pl.mikigal.config.serializer.Serializers;
 import pl.mikigal.config.style.CommentStyle;
 import pl.mikigal.config.style.NameStyle;
 import pl.mikigal.config.util.ConversionUtils;
+import pl.mikigal.config.util.ReflectionUtils;
 import pl.mikigal.config.util.TypeUtils;
 
 import java.io.*;
@@ -40,6 +42,12 @@ public class BukkitConfiguration extends YamlConfiguration {
 	 */
 	private final Map<String, Object> cache;
 	private final Map<String, String> comments;
+
+	/**
+	 *
+	 * Reflection Path
+	 */
+	private final String dumperFieldName = ReflectionUtils.isVeryNewVersion() ? "yamlDumperOptions" : "yamlOptions";
 
 	public BukkitConfiguration(File directory, File file, NameStyle nameStyle, CommentStyle commentStyle,
 							   boolean automaticColorStrings, String configComment) {
@@ -214,7 +222,7 @@ public class BukkitConfiguration extends YamlConfiguration {
 	 */
 	private void overrideMaxLineWidth() {
 		try {
-			Field yamlOptionsField = YamlConfiguration.class.getDeclaredField("yamlOptions");
+			Field yamlOptionsField = YamlConfiguration.class.getDeclaredField(dumperFieldName);
 			yamlOptionsField.setAccessible(true);
 			DumperOptions yamlOptions = (DumperOptions) yamlOptionsField.get(this);
 			yamlOptions.setWidth(Integer.MAX_VALUE);
